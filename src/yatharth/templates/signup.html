@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <!-- Link to Custom CSS -->
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/logincss.css') }}">
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <style>
+    body,
+    html {
+      overflow: hidden;
+    }
+
+    .field {
+      margin-bottom: 10px;
+    }
+
+    .custom-nav-links li {
+      margin-right: 20px;
+    }
+
+    .box {
+      margin-top: 50px;
+      padding: 20px;
+    }
+
+    .box-info {
+      margin-top: 40px;
+    }
+
+    .popup {
+      display: none;
+      position: fixed;
+      top: 20%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      z-index: 1000;
+    }
+
+    .popup.error {
+      background-color: #f2dede;
+      color: #a94442;
+    }
+
+    .popup.success {
+      background-color: #dff0d8;
+      color: #3c763d;
+    }
+  </style>
+  <script>
+    function showPopup(message, type) {
+      var popup = document.getElementById('popup');
+      popup.innerHTML = message;
+      popup.className = 'popup ' + type;
+      popup.style.display = 'block';
+      setTimeout(function () {
+        popup.style.display = 'none';
+      }, 3000);
+    }
+    window.onload = function () {
+      {% with messages = get_flashed_messages(with_categories = true) %}
+      {% if messages %}
+      {% for category, message in messages %}
+      showPopup("{{ message }}", "{{ category }}");
+      {% endfor %}
+      {% endif %}
+      {% endwith %}
+    }
+  </script>
+</head>
+
+<body>
+
+  <div id="popup" class="popup"></div>
+
+  <nav class="custom-navbar">
+    <div class="custom-logo">Transrect</div>
+  </nav>
+
+  <div class='box'>
+    <div class='box-form'>
+      <div class='box-login-tab'></div>
+      <div class='box-login-title'>
+        <div class='i i-login'></div>
+        <h2>SIGN UP</h2>
+      </div>
+      <div class='box-login'>
+        <div class='fieldset-body' id='signup_form'>
+          <button onclick="openLoginInfo();" class='b b-form i i-more' title='More Info'></button>
+
+          <form class="form-group" action="{{ url_for('log.account_sign_up') }}" method="POST" novalidate>
+            {{ form.csrf_token }}
+            <p class='field'>
+              {{ form.username.label }} <br>
+              {{ form.username(size=30, class_="text textfoc form-control") }}
+              <span id='valida' class='i i-warning'></span>
+            </p>
+            <p class='field'>
+              {{ form.email.label }} <br>
+              {{ form.email(size=30, class_="text textfoc form-control") }}
+              <span id='valida' class='i i-warning'></span>
+            </p>
+            <p class='field'>
+              {{ form.phone_number.label }} <br>
+              {{ form.phone_number(size=30, class_="text textfoc form-control") }}
+              <span id='valida' class='i i-warning'></span>
+            </p>
+            <p class='field'>
+              {{ form.password.label }} <br>
+              {{ form.password(size=30, class_="pass passfoc form-control") }}
+              <span id='valida' class='i i-close'></span>
+            </p>
+            <p class='field'>
+              {{ form.confirm_password.label }} <br>
+              {{ form.confirm_password(size=30, class_="pass passfoc form-control") }}
+              <span id='valida' class='i i-close'></span>
+            </p>
+
+            <div class="form-group">
+              {{ form.submit(class_="sub subhov subfoc submit-button") }}
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+    <div class='box-info'>
+      <p><button onclick="closeLoginInfo();" class='b b-info i i-left' title='Back to Sign In'></button>
+      <h3>Need Help?</h3>
+      </p>
+      <div class='line-wh'></div>
+      <button onclick="navigateToForgotPassword();" class="b-support" title="Forgot Password?">Forgot Password?</button>
+      <button onclick="" class='b-support' title='Contact Support'> Contact Support</button>
+      <div class='line-wh'></div>
+      <button onclick="" class='b-cta' title='Login now!'>
+        <a href="{{ url_for('log.account_login') }}" class="custom-link">LOGIN</a>
+
+    </div>
+  </div>
+
+  <script src="{{ url_for('static', filename='scripts/loginjs.js') }}"></script>
+  <script>
+    function navigateToForgotPassword() {
+      window.location.href = "{{ url_for('log.account_forgot_password') }}";
+    }
+  </script>
+</body>
+
+</html>
