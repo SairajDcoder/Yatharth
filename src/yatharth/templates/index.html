@@ -1,15 +1,2451 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 
 <head>
-    <title>test doc</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jharkhand Academic Credential Verification</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #0d6efd;
+            --secondary: #6c757d;
+            --success: #198754;
+            --danger: #dc3545;
+            --warning: #ffc107;
+            --info: #0dcaf0;
+            --light: #f8f9fa;
+            --dark: #212529;
+            --gov-blue: #004685;
+            --gov-red: #d14545;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f7f9;
+        }
+
+        .navbar {
+            background: linear-gradient(90deg, var(--gov-blue) 0%, #0062cc 100%);
+        }
+
+        .logo-text {
+            font-weight: 700;
+            font-size: 1.5rem;
+        }
+
+        .hero-section {
+            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="2000" height="200" viewBox="0 0 2000 200"><rect fill="%23004685" width="2000" height="200"/><path fill="%230062cc" d="M0 0L2000 200H0V0Z"/></svg>') no-repeat;
+            background-size: cover;
+            color: white;
+            padding: 4rem 0;
+            margin-bottom: 2rem;
+        }
+
+        .card {
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s;
+            margin-bottom: 20px;
+            border: none;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+        }
+
+        .card-header {
+            border-radius: 10px 10px 0 0 !important;
+            font-weight: 600;
+        }
+
+        .feature-icon {
+            font-size: 2.5rem;
+            color: var(--gov-blue);
+            margin-bottom: 1rem;
+        }
+
+        .verification-step {
+            border-left: 3px solid var(--gov-blue);
+            padding-left: 20px;
+            margin-bottom: 30px;
+        }
+
+        .step-number {
+            background-color: var(--gov-blue);
+            color: white;
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 10px;
+        }
+
+        .status-badge {
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-weight: 600;
+        }
+
+        .verification-progress {
+            height: 10px;
+        }
+
+        .upload-area {
+            border: 2px dashed #ccc;
+            border-radius: 10px;
+            padding: 30px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .upload-area:hover {
+            border-color: var(--gov-blue);
+            background-color: rgba(0, 70, 133, 0.05);
+        }
+
+        .result-card {
+            display: none;
+        }
+
+        .footer {
+            background-color: var(--gov-blue);
+            color: white;
+            padding: 2rem 0;
+            margin-top: 3rem;
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--gov-blue);
+        }
+
+        .institution-logo {
+            height: 40px;
+            margin-right: 15px;
+            margin-bottom: 10px;
+        }
+
+        .verification-history {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        /* Modal specific styles */
+        .modal-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(5px);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            visibility: hidden;
+            opacity: 0;
+            transition: visibility 0.3s, opacity 0.3s;
+        }
+
+        .modal-container.visible {
+            visibility: visible;
+            opacity: 1;
+        }
+    </style>
+    <style>
+        @import "https://fonts.googleapis.com/css?family=Open+Sans|Quicksand:400,700";
+
+        .box {
+            width: 330px;
+            position: relative;
+            z-index: 1;
+            font-family: "Quicksand", sans-serif;
+        }
+
+        .box-form {
+            width: 320px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .box-login-tab {
+            width: 50%;
+            height: 40px;
+            position: relative;
+            float: left;
+            z-index: 1;
+            border-radius: 6px 6px 0 0;
+            transform: perspective(5px) rotateX(0.93deg) translateZ(-1px);
+            transform-origin: 0 0;
+            backface-visibility: hidden;
+            box-shadow: 15px -15px 30px rgba(0, 0, 0, 0.32);
+
+            background: linear-gradient(135deg, #005f73 0%, #004685 100%);
+        }
+
+        .box-login-title {
+            width: 35%;
+            height: 40px;
+            position: absolute;
+            float: left;
+            z-index: 2;
+            background: linear-gradient(135deg, #005f73 0%, #004685 100%);
+        }
+
+        .box-login {
+            position: relative;
+            top: -4px;
+            width: 320px;
+            background: #fdfdfd;
+            text-align: center;
+            overflow: hidden;
+            z-index: 2;
+            border-top-right-radius: 6px;
+            border-bottom-left-radius: 6px;
+            border-bottom-right-radius: 6px;
+            box-shadow: 15px 30px 30px rgba(0, 0, 0, 0.32);
+        }
+
+        .box-info {
+            width: 260px;
+            top: 60px;
+            position: absolute;
+            right: -5px;
+            padding: 15px 15px 15px 30px;
+            background-color: rgba(255, 255, 255, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            z-index: 0;
+            border-radius: 6px;
+            box-shadow: 15px 30px 30px rgba(0, 0, 0, 0.32);
+        }
+
+        .line-wh {
+            width: 100%;
+            height: 1px;
+            top: 0px;
+            margin: 12px auto;
+            position: relative;
+            border-top: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        h2,
+        h3 {
+            font-size: 16px;
+            letter-spacing: -1px;
+            line-height: 20px;
+        }
+
+        h2 {
+            color: #ffffff;
+            text-align: center;
+        }
+
+        h3 {
+            color: #ffffff;
+            text-align: right;
+        }
+
+        a {
+            text-decoration: none;
+        }
+
+        button:focus {
+            outline: 0;
+        }
+
+        .b {
+            height: 24px;
+            line-height: 24px;
+            background-color: transparent;
+            border: none;
+            cursor: pointer;
+        }
+
+        .b-form {
+            opacity: 0.5;
+            margin: 10px 20px;
+            float: right;
+        }
+
+        .b-info {
+            opacity: 0.5;
+            float: left;
+        }
+
+        .b-form:hover,
+        .b-info:hover {
+            opacity: 1;
+        }
+
+        .b-support,
+        .b-cta {
+            width: 100%;
+            padding: 0px 15px;
+            font-family: "Quicksand", sans-serif;
+            font-weight: 700;
+            letter-spacing: -1px;
+            font-size: 16px;
+            line-height: 32px;
+            cursor: pointer;
+            border-radius: 16px;
+            color: white;
+        }
+
+        .b-support {
+            border: #0d0c08 1px solid;
+            background-color: transparent;
+            color: #000;
+            /* Changed to black for visibility */
+            margin: 6px 0;
+        }
+
+        .b-cta {
+            background-color: #004685;
+
+            /* Set the button background to white */
+            border: 1px solid #004685;
+            /* Add a dark blue border for contrast */
+            cursor: pointer;
+            border-radius: 16px;
+            width: 100%;
+            padding: 0;
+            /* Remove padding from button to control it on the link */
+        }
+
+        .b-cta a {
+            color: white;
+            /* Set the link text to dark blue */
+            text-decoration: none;
+            display: block;
+            /* Make the link a block-level element to fill the button */
+            padding: 0px 15px;
+            /* Apply padding to the link for click area */
+            font-family: "Quicksand", sans-serif;
+            font-weight: 700;
+            letter-spacing: -1px;
+            font-size: 16px;
+            line-height: 32px;
+            text-align: center;
+        }
+
+        .b-support:hover,
+        .b-cta:hover {
+            color: #fff;
+            background-color: #303030;
+            border: 1px #020f0e solid;
+        }
+
+        .fieldset-body {
+            display: table;
+        }
+
+        .fieldset-body p {
+            width: 100%;
+            display: inline-table;
+            padding: 5px 20px;
+            margin-bottom: 2px;
+        }
+
+        label {
+            float: left;
+            width: 100%;
+            top: 0px;
+            color: #032942;
+            font-size: 13px;
+            font-weight: 700;
+            text-align: left;
+            line-height: 1.5;
+        }
+
+        label.checkbox {
+            float: left;
+            padding: 5px 20px;
+            line-height: 1.7;
+        }
+
+        input[type="text"],
+        input[type="password"],
+        .text,
+        .pass {
+            width: 100%;
+            height: 32px;
+            padding: 0px 10px;
+            background-color: rgba(0, 0, 0, 0.03);
+            border: none;
+            display: inline;
+            color: #303030;
+            font-size: 16px;
+            font-weight: 400;
+            float: left;
+            box-shadow: inset 1px 1px 0px rgba(0, 0, 0, 0.05),
+                1px 1px 0px rgba(255, 255, 255, 1);
+        }
+
+        input[type="text"]:focus,
+        input[type="password"]:focus,
+        .textfoc,
+        .passfoc {
+            outline: none;
+        }
+
+        input[type="submit"],
+        .sub {
+            width: 100%;
+            height: 48px;
+            margin-top: 24px;
+            padding: 0px 20px;
+            font-family: "Quicksand", sans-serif;
+            font-weight: 700;
+            font-size: 18px;
+            color: #e9f5f4;
+            line-height: 40px;
+            text-align: center;
+            background-color: #004685;
+            border: 0px #0d0c08 solid;
+            opacity: 1;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+
+        input[type="submit"]:hover,
+        .subhov {
+            background-color: #303030;
+            border: 1px #020f0e solid;
+        }
+
+        input[type="submit"]:focus,
+        .subfoc {
+            outline: none;
+        }
+
+        p.field span.i {
+            width: 24px;
+            height: 24px;
+            float: right;
+            position: relative;
+            margin-top: -26px;
+            right: 2px;
+            z-index: 2;
+            display: none;
+        }
+
+        .form-group {
+            margin: 0;
+            padding: 0;
+        }
+
+        .form-control {
+            width: 100%;
+            height: 32px;
+            padding: 0px 10px;
+            background-color: rgba(0, 0, 0, 0.03);
+            border: none;
+            display: inline;
+            color: #303030;
+            font-size: 16px;
+            font-weight: 400;
+            float: left;
+            box-shadow: inset 1px 1px 0px rgba(0, 0, 0, 0.05),
+                1px 1px 0px rgba(255, 255, 255, 1);
+        }
+
+        .form-control:focus {
+            background-color: #f8f8c6;
+            outline: none;
+        }
+
+        .submit-button {
+            width: 100%;
+            height: 48px;
+            margin-top: 24px;
+            padding: 0px 20px;
+            font-family: "Quicksand", sans-serif;
+            font-weight: 700;
+            font-size: 18px;
+            color: #e9f5f4;
+            line-height: 40px;
+            text-align: center;
+            background-color: #004685;
+            border: 0px #0d0c08 solid;
+            opacity: 1;
+            cursor: pointer;
+            border-radius: 4px;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+
+        .submit-button:focus {
+            outline: none;
+        }
+
+        .submit-button:hover {
+            background-color: #303030;
+            border: 1px #020f0e solid;
+        }
+
+        .box-form,
+        .box-info,
+        .b,
+        .b-support,
+        .b-cta,
+        input[type="submit"],
+        p.field span.i {
+            -webkit-transition: all 0.3s;
+            -moz-transition: all 0.3s;
+            -ms-transition: all 0.3s;
+            -o-transition: all 0.3s;
+            transition: all 0.3s;
+        }
+
+        /* Fixed SVG icons to be black and properly sized */
+        .i {
+            width: 20px;
+            height: 20px;
+        }
+
+        .i-login {
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Cpath fill='%23ffffff' d='M217.9 105.9L340.7 228.7c7.2 7.2 11.3 17.1 11.3 27.3s-4.1 20.1-11.3 27.3L217.9 406.1c-6.2 6.2-16.4 6.2-22.6 0s-6.2-16.4 0-22.6L301.1 256 195.3 149.9c-6.2-6.2-6.2-16.4 0-22.6s16.4-6.2 22.6 0z'/%3E%3C/svg%3E");
+            background-size: 18px 18px;
+            background-repeat: no-repeat;
+            background-position: center;
+            margin: 13px 0px 0px 15px;
+            position: relative;
+            float: left;
+        }
+
+        .i-more {
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 128 512'%3E%3Cpath fill='%23000000' d='M64 128a64 64 0 1 0 0-128 64 64 0 1 0 0 128zm0 192a64 64 0 1 0 0-128 64 64 0 1 0 0 128zM0 448a64 64 0 1 0 128 0 64 64 0 1 0-128 0z'/%3E%3C/svg%3E");
+            background-size: 20px 20px;
+            background-repeat: no-repeat;
+            background-position: center;
+        }
+
+        .i-left {
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 320 512'%3E%3Cpath fill='%23000000' d='M9.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l192 192c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L77.3 256 246.6 86.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-192 192z'/%3E%3C/svg%3E");
+            background-size: 16px 16px;
+            background-repeat: no-repeat;
+            background-position: center;
+        }
+    </style>
+    <style>
+        /* body,
+        html {
+            overflow: hidden;
+        } */
+
+        .popup {
+            display: none;
+            position: fixed;
+            top: 20%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+        }
+
+        .popup.error {
+            background-color: #f2dede;
+            color: #a94442;
+        }
+
+        .popup.success {
+            background-color: #dff0d8;
+            color: #3c763d;
+        }
+    </style>
+    <script>
+        function showPopup(message, type) {
+            var popup = document.getElementById('popup');
+            popup.innerHTML = message;
+            popup.className = 'popup ' + type;
+            popup.style.display = 'block';
+            setTimeout(function () {
+                popup.style.display = 'none';
+            }, 3000);
+        }
+        window.onload = function () {
+            {% with messages = get_flashed_messages(with_categories = true) %}
+            {% if messages %}
+            {% for category, message in messages %}
+            showPopup("{{ message }}", "{{ category }}");
+            {% endfor %}
+            {% endif %}
+            {% endwith %}
+        }
+    </script>
 </head>
 
 <body>
+    <div id="popup" class="popup"></div>
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container">
+            <a class="navbar-brand d-flex align-items-center" href="#">
+                <i class="fas fa-graduation-cap me-2"></i>
+                <span class="logo-text">JACV</span>
+                <span class="ms-2">Jharkhand Academic Credential Verification</span>
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="#"><i class="fas fa-home me-1"></i> Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#"><i class="fas fa-university me-1"></i> Institutions</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#"><i class="fas fa-question-circle me-1"></i> Help</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" id="loginBtn"><i class="fas fa-user me-1"></i> {{username}}</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
 
-    <h1>Hello World</h1>
+    <div class="hero-section">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-8">
+                    <h1 class="display-4 fw-bold">Verify Academic Credentials with Confidence</h1>
+                    <p class="lead">The official platform for authenticating degrees and certificates issued by
+                        Jharkhand's educational institutions</p>
+                    <button class="btn btn-light btn-lg mt-3" id="verifyBtn">Verify a Document <i
+                            class="fas fa-arrow-right ms-2"></i></button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="row mb-5">
+            <div class="col-md-3 col-6 text-center">
+                <div class="stat-number">125,789</div>
+                <div class="text-muted">Verified Certificates</div>
+            </div>
+            <div class="col-md-3 col-6 text-center">
+                <div class="stat-number">42</div>
+                <div class="text-muted">Participating Institutions</div>
+            </div>
+            <div class="col-md-3 col-6 text-center">
+                <div class="stat-number">98.7%</div>
+                <div class="text-muted">Verification Accuracy</div>
+            </div>
+            <div class="col-md-3 col-6 text-center">
+                <div class="stat-number">1,243</div>
+                <div class="text-muted">Frauds Detected</div>
+            </div>
+        </div>
+
+        <div class="row mb-5">
+            <div class="col-lg-7">
+                <div class="card">
+                    <div class="card-header bg-white">
+                        <h5 class="mb-0"><i class="fas fa-file-upload me-2"></i> Verify a Certificate</h5>
+                    </div>
+                    <div class="card-body">
+                        <!-- <div class="upload-area" id="uploadArea">
+                            <i class="fas fa-cloud-upload-alt display-4 text-secondary mb-3"></i>
+                            <h5>Drag & Drop your document here</h5>
+                            <p class="text-muted">Supported formats: PDF, JPG, PNG</p>
+                            <button class="btn btn-primary mt-2">Browse Files</button>
+                        </div> -->
+                        <div class="upload-area" id="uploadArea">
+                            <i class="fas fa-cloud-upload-alt display-4 text-secondary mb-3"></i>
+                            <h5>Drag & Drop your document here</h5>
+                            <p class="text-muted">Supported formats: PDF, JPG, PNG</p>
+                            <button class="btn btn-primary mt-2">Browse Files</button>
+                            <div id="filePreview"
+                                style="display:none; text-align:center; padding:20px; border:2px dashed #004685; border-radius:10px;">
+                                <i id="fileIcon" class="far fa-file-alt display-4 mb-2"></i>
+                                <p id="fileName"></p>
+                            </div>
+                        </div>
+
+                        <div class="mt-4">
+                            <h6>Verification Progress</h6>
+                            <div class="progress verification-progress mb-3">
+                                <div class="progress-bar" role="progressbar" style="width: 0%" id="progressBar"></div>
+                            </div>
+                            <div id="progressText" class="text-muted">Waiting for document upload...</div>
+                        </div>
+
+                        <div class="card result-card mt-4" id="resultCard">
+                            <div class="card-body">
+                                <div class="text-center mb-4">
+                                    <i class="fas fa-check-circle display-1 text-success" id="resultIcon"></i>
+                                    <h3 class="mt-3" id="resultTitle">Verification Successful</h3>
+                                    <p id="resultDescription">This document has been verified as authentic.</p>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <h6>Document Details</h6>
+                                        <ul class="list-group list-group-flush">
+                                            <li class="list-group-item d-flex justify-content-between">
+                                                <span>Name:</span>
+                                                <span id="detailName">Rajesh Kumar</span>
+                                            </li>
+                                            <li class="list-group-item d-flex justify-content-between">
+                                                <span>Institution:</span>
+                                                <span id="detailInstitution">Ranchi University</span>
+                                            </li>
+                                            <li class="list-group-item d-flex justify-content-between">
+                                                <span>Degree:</span>
+                                                <span id="detailDegree">Bachelor of Technology</span>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <h6>Verification Details</h6>
+                                        <ul class="list-group list-group-flush">
+                                            <li class="list-group-item d-flex justify-content-between">
+                                                <span>Certificate ID:</span>
+                                                <span id="detailCertId">RU/BTECH/2021/08732</span>
+                                            </li>
+                                            <li class="list-group-item d-flex justify-content-between">
+                                                <span>Issue Date:</span>
+                                                <span id="detailDate">May 15, 2021</span>
+                                            </li>
+                                            <li class="list-group-item d-flex justify-content-between">
+                                                <span>Status:</span>
+                                                <span class="badge bg-success" id="detailStatus">Verified</span>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+
+                                <div class="mt-4 text-center">
+                                    <button class="btn btn-outline-primary me-2"><i class="fas fa-download me-1"></i>
+                                        Download Report</button>
+                                    <button class="btn btn-primary" id="verifyAnotherBtn"><i
+                                            class="fas fa-redo me-1"></i> Verify Another Document</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-5">
+                <div class="card">
+                    <div class="card-header bg-white">
+                        <h5 class="mb-0"><i class="fas fa-history me-2"></i> Recent Verifications</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="verification-history">
+                            <div class="d-flex justify-content-between border-bottom pb-3 mb-3">
+                                <div>
+                                    <div class="fw-bold">Amit Sharma</div>
+                                    <div class="text-muted small">B.Com - Vinoba Bhave University</div>
+                                </div>
+                                <div class="text-end">
+                                    <div class="badge bg-success">Verified</div>
+                                    <div class="text-muted small">Today, 11:23 AM</div>
+                                </div>
+                            </div>
+                            <div class="d-flex justify-content-between border-bottom pb-3 mb-3">
+                                <div>
+                                    <div class="fw-bold">Priya Singh</div>
+                                    <div class="text-muted small">M.Tech - Birla Institute of Technology</div>
+                                </div>
+                                <div class="text-end">
+                                    <div class="badge bg-danger">Fraud Detected</div>
+                                    <div class="text-muted small">Today, 10:45 AM</div>
+                                </div>
+                            </div>
+                            <div class="d-flex justify-content-between border-bottom pb-3 mb-3">
+                                <div>
+                                    <div class="fw-bold">Sanjay Mehta</div>
+                                    <div class="text-muted small">B.A - Nilamber-Pitamber University</div>
+                                </div>
+                                <div class="text-end">
+                                    <div class="badge bg-success">Verified</div>
+                                    <div class="text-muted small">Yesterday, 4:32 PM</div>
+                                </div>
+                            </div>
+                            <div class="d-flex justify-content-between border-bottom pb-3 mb-3">
+                                <div>
+                                    <div class="fw-bold">Neha Gupta</div>
+                                    <div class="text-muted small">B.Sc - Kolhan University</div>
+                                </div>
+                                <div class="text-end">
+                                    <div class="badge bg-warning text-dark">Needs Review</div>
+                                    <div class="text-muted small">Yesterday, 2:15 PM</div>
+                                </div>
+                            </div>
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <div class="fw-bold">Rahul Verma</div>
+                                    <div class="text-muted small">MBA - Jharkhand Rai University</div>
+                                </div>
+                                <div class="text-end">
+                                    <div class="badge bg-success">Verified</div>
+                                    <div class="text-muted small">Apr 12, 2023</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card mt-4">
+                    <div class="card-header bg-white">
+                        <h5 class="mb-0"><i class="fas fa-info-circle me-2"></i> How It Works</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="verification-step">
+                            <h6><span class="step-number">1</span> Upload Document</h6>
+                            <p class="text-muted">Upload a scan or photo of the academic certificate you want to verify
+                            </p>
+                        </div>
+                        <div class="verification-step">
+                            <h6><span class="step-number">2</span> Automated Analysis</h6>
+                            <p class="text-muted">Our system checks security features, extracts text, and validates
+                                format</p>
+                        </div>
+                        <div class="verification-step">
+                            <h6><span class="step-number">3</span> Database Verification</h6>
+                            <p class="text-muted">We cross-reference details with the official institutional database
+                            </p>
+                        </div>
+                        <div class="verification-step">
+                            <h6><span class="step-number">4</span> Get Results</h6>
+                            <p class="text-muted">Receive a comprehensive report on the document's authenticity</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <h3 class="text-center mb-4">Why Use Our Verification System?</h3>
+        <div class="row mb-5">
+            <div class="col-md-4">
+                <div class="card h-100">
+                    <div class="card-body text-center">
+                        <div class="feature-icon">
+                            <i class="fas fa-shield-alt"></i>
+                        </div>
+                        <h5>Advanced Security</h5>
+                        <p>Uses AI and blockchain technology to detect even the most sophisticated forgeries</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card h-100">
+                    <div class="card-body text-center">
+                        <div class="feature-icon">
+                            <i class="fas fa-bolt"></i>
+                        </div>
+                        <h5>Instant Results</h5>
+                        <p>Most verifications are completed in under 2 minutes, saving you time and effort</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card h-100">
+                    <div class="card-body text-center">
+                        <div class="feature-icon">
+                            <i class="fas fa-database"></i>
+                        </div>
+                        <h5>Comprehensive Database</h5>
+                        <p>Direct integration with participating institutions across Jharkhand</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mb-5">
+            <div class="card-header">
+                <h5 class="mb-0">Participating Institutions</h5>
+            </div>
+            <div class="card-body">
+                <div class="d-flex flex-wrap justify-content-center">
+                    <img src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='40' viewBox='0 0 100 40'><rect width='100' height='40' fill='%23f0f0f0'/><text x='50' y='22' font-family='Arial' font-size='12' text-anchor='middle' fill='%23333'>Ranchi Univ</text></svg>"
+                        class="institution-logo">
+                    <img src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='40' viewBox='0 0 100 40'><rect width='100' height='40' fill='%23f0f0f0'/><text x='50' y='22' font-family='Arial' font-size='12' text-anchor='middle' fill='%23333'>BIT Mesra</text></svg>"
+                        class="institution-logo">
+                    <img src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='40' viewBox='0 0 100 40'><rect width='100' height='40' fill='%23f0f0f0'/><text x='50' y='22' font-family='Arial' font-size='12' text-anchor='middle' fill='%23333'>Vinoba Bhave</text></svg>"
+                        class="institution-logo">
+                    <img src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='40' viewBox='0 0 100 40'><rect width='100' height='40' fill='%23f0f0f0'/><text x='50' y='22' font-family='Arial' font-size='12' text-anchor='middle' fill='%23333'>Kolhan Univ</text></svg>"
+                        class="institution-logo">
+                    <img src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='40' viewBox='0 0 100 40'><rect width='100' height='40' fill='%23f0f0f0'/><text x='50' y='22' font-family='Arial' font-size='12' text-anchor='middle' fill='%23333'>Jharkhand Rai</text></svg>"
+                        class="institution-logo">
+                    <img src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='40' viewBox='0 0 100 40'><rect width='100' height='40' fill='%23f0f0f0'/><text x='50' y='22' font-family='Arial' font-size='12' text-anchor='middle' fill='%23333'>NPU</text></svg>"
+                        class="institution-logo">
+                </div>
+                <div class="text-center mt-3">
+                    <button class="btn btn-outline-primary">View All Institutions</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-4">
+                    <h5>JACV System</h5>
+                    <p>The official academic credential verification platform of the Government of Jharkhand</p>
+                </div>
+                <div class="col-md-2">
+                    <h5>Quick Links</h5>
+                    <ul class="list-unstyled">
+                        <li><a href="#" class="text-white">Home</a></li>
+                        <li><a href="#" class="text-white">Verify</a></li>
+                        <li><a href="#" class="text-white">Institutions</a></li>
+                        <li><a href="#" class="text-white">Help</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-3">
+                    <h5>Contact Us</h5>
+                    <ul class="list-unstyled">
+                        <li><i class="fas fa-envelope me-2"></i> support@jacv.jharkhand.gov.in</li>
+                        <li><i class="fas fa-phone me-2"></i> +91 0651-XXXXXXX</li>
+                        <li><i class="fas fa-map-marker-alt me-2"></i> Higher Education Department, Jharkhand</li>
+                    </ul>
+                </div>
+                <div class="col-md-3">
+                    <h5>Follow Us</h5>
+                    <div class="d-flex">
+                        <a href="#" class="text-white me-3"><i class="fab fa-twitter fa-2x"></i></a>
+                        <a href="#" class="text-white me-3"><i class="fab fa-facebook fa-2x"></i></a>
+                        <a href="#" class="text-white me-3"><i class="fab fa-linkedin fa-2x"></i></a>
+                        <a href="#" class="text-white"><i class="fab fa-youtube fa-2x"></i></a>
+                    </div>
+                </div>
+            </div>
+            <hr class="bg-light">
+            <div class="row">
+                <div class="col-md-6">
+                    <p class="mb-0">© 2023 Government of Jharkhand. All rights reserved.</p>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <a href="#" class="text-white me-3">Privacy Policy</a>
+                    <a href="#" class="text-white me-3">Terms of Service</a>
+                    <a href="#" class="text-white">Accessibility</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <div class="modal-container" id="loginModal">
+        <div class="box">
+            <div class="box-form">
+                <div class="box-login-tab"></div>
+                <div class="box-login-title">
+                    <div class="i i-login"></div>
+                    <h2>LOGIN</h2>
+                </div>
+                <div class="box-login">
+                    <div class="fieldset-body" id="login_form">
+                        <button onclick="openLoginInfo();" class="b b-form i i-more" title="More Information"></button>
+                        <form class="form-group" id="login-form-submit" action="{{ url_for('log.account_login') }}"
+                            method="POST" novalidate>
+
+                            {{ form.csrf_token }}
+                            <p class="field">
+                                {{ form.email.label }} <br>
+                                {{ form.email(size=30, class_="text textfoc form-control") }}
+                                <span id="valida" class="i i-warning"></span>
+                            </p>
+                            <p class="field">
+                                {{ form.password.label }} <br>
+                                {{ form.password(size=30, class_="pass passfoc form-control") }}
+                                <span id="valida" class="i i-close"></span>
+                            </p>
+
+                            <label class="checkbox">
+                                {{ form.remember_me }} Keep me Signed in
+                            </label>
+
+                            <div class="form-group">
+                                {{ form.submit(class_="sub subhov subfoc submit-button") }}
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <div class="box-info">
+                <p>
+                    <button onclick="closeLoginInfo();" class="b b-info i i-left" title="Back to Sign In"></button>
+                <h3>Need Help?</h3>
+                </p>
+                <div class="line-wh"></div>
+                <button onclick="navigateToForgotPassword();" class="b-support" title="Forgot Password?">Forgot
+                    Password?</button>
+                <button onclick="" class="b-support" title="Contact Support">Contact Support</button>
+                <div class="line-wh"></div>
+                <button onclick="navigateToSignUp();" class="b-cta" title="Sign up now!">
+                    <a href="#" class="custom-link">CREATE ACCOUNT</a>
+                </button>
+            </div>
+        </div>
+    </div>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="{{ url_for('static', filename='scripts/loginjs.js') }}"></script>
+    <!-- <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const uploadArea = document.getElementById('uploadArea');
+            const progressBar = document.getElementById('progressBar');
+            const progressText = document.getElementById('progressText');
+            const resultCard = document.getElementById('resultCard');
+            const verifyAnotherBtn = document.getElementById('verifyAnotherBtn');
+            const resultIcon = document.getElementById('resultIcon');
+            const resultTitle = document.getElementById('resultTitle');
+            const resultDescription = document.getElementById('resultDescription');
+            const detailStatus = document.getElementById('detailStatus');
+
+            // Simulate verification process
+            uploadArea.addEventListener('click', function () {
+                // Reset UI
+                progressBar.style.width = '0%';
+                progressText.textContent = 'Uploading document...';
+
+                // Simulate progress
+                let progress = 0;
+                const interval = setInterval(() => {
+                    progress += 5;
+                    progressBar.style.width = `${progress}%`;
+
+                    if (progress === 20) {
+                        progressText.textContent = 'Extracting text with OCR...';
+                    } else if (progress === 40) {
+                        progressText.textContent = 'Checking security features...';
+                    } else if (progress === 60) {
+                        progressText.textContent = 'Verifying against database...';
+                    } else if (progress === 80) {
+                        progressText.textContent = 'Running AI validation...';
+                    } else if (progress === 100) {
+                        clearInterval(interval);
+                        progressText.textContent = 'Verification complete!';
+
+                        // Show result - randomly select between verified and fraud for demo
+                        const isVerified = Math.random() > 0.3;
+                        showResult(isVerified);
+                    }
+                }, 200);
+            });
+
+            // Show verification result
+            function showResult(isVerified) {
+                if (isVerified) {
+                    resultIcon.className = 'fas fa-check-circle display-1 text-success';
+                    resultTitle.textContent = 'Verification Successful';
+                    resultDescription.textContent = 'This document has been verified as authentic.';
+                    detailStatus.className = 'badge bg-success';
+                    detailStatus.textContent = 'Verified';
+                } else {
+                    resultIcon.className = 'fas fa-times-circle display-1 text-danger';
+                    resultTitle.textContent = 'Potential Fraud Detected';
+                    resultDescription.textContent = 'This document shows signs of tampering or does not match official records.';
+                    detailStatus.className = 'badge bg-danger';
+                    detailStatus.textContent = 'Fraud Detected';
+                }
+
+                resultCard.style.display = 'block';
+            }
+
+            // Verify another button
+            verifyAnotherBtn.addEventListener('click', function () {
+                resultCard.style.display = 'none';
+                progressBar.style.width = '0%';
+                progressText.textContent = 'Waiting for document upload...';
+            });
+        });
+    </script> -->
+    <!-- <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const uploadArea = document.getElementById('uploadArea');
+            const progressBar = document.getElementById('progressBar');
+            const progressText = document.getElementById('progressText');
+            const resultCard = document.getElementById('resultCard');
+            const verifyAnotherBtn = document.getElementById('verifyAnotherBtn');
+            const resultIcon = document.getElementById('resultIcon');
+            const resultTitle = document.getElementById('resultTitle');
+            const resultDescription = document.getElementById('resultDescription');
+            const detailStatus = document.getElementById('detailStatus');
+
+            const filePreview = document.getElementById('filePreview');
+            const fileIcon = document.getElementById('fileIcon');
+            const fileNameElement = document.getElementById('fileName');
+            const dragDropText = uploadArea.querySelector('h5');
+            const dragDropIcons = uploadArea.querySelector('i');
+            const browseBtn = uploadArea.querySelector('.btn');
+
+            // Function to start the simulated verification process
+            function startVerification() {
+                // Reset UI
+                progressBar.style.width = '0%';
+                progressText.textContent = 'Uploading document...';
+
+                // Simulate progress
+                let progress = 0;
+                const interval = setInterval(() => {
+                    progress += 5;
+                    progressBar.style.width = `${progress}%`;
+
+                    if (progress === 20) {
+                        progressText.textContent = 'Extracting text with OCR...';
+                    } else if (progress === 40) {
+                        progressText.textContent = 'Checking security features...';
+                    } else if (progress === 60) {
+                        progressText.textContent = 'Verifying against database...';
+                    } else if (progress === 80) {
+                        progressText.textContent = 'Running AI validation...';
+                    } else if (progress === 100) {
+                        clearInterval(interval);
+                        progressText.textContent = 'Verification complete!';
+
+                        // Show result - randomly select between verified and fraud for demo
+                        const isVerified = Math.random() > 0.3;
+                        showResult(isVerified);
+                    }
+                }, 200);
+            }
+
+            // Show verification result
+            function showResult(isVerified) {
+                if (isVerified) {
+                    resultIcon.className = 'fas fa-check-circle display-1 text-success';
+                    resultTitle.textContent = 'Verification Successful';
+                    resultDescription.textContent = 'This document has been verified as authentic.';
+                    detailStatus.className = 'badge bg-success';
+                    detailStatus.textContent = 'Verified';
+                } else {
+                    resultIcon.className = 'fas fa-times-circle display-1 text-danger';
+                    resultTitle.textContent = 'Potential Fraud Detected';
+                    resultDescription.textContent = 'This document shows signs of tampering or does not match official records.';
+                    detailStatus.className = 'badge bg-danger';
+                    detailStatus.textContent = 'Fraud Detected';
+                }
+
+                resultCard.style.display = 'block';
+            }
+
+            // Verify another button
+            verifyAnotherBtn.addEventListener('click', function () {
+                resultCard.style.display = 'none';
+                progressBar.style.width = '0%';
+                progressText.textContent = 'Waiting for document upload...';
+            });
+
+            // Add drag-and-drop event handlers
+            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                uploadArea.addEventListener(eventName, preventDefaults, false);
+            });
+
+            function preventDefaults(e) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+
+            ['dragenter', 'dragover'].forEach(eventName => {
+                uploadArea.addEventListener(eventName, () => uploadArea.classList.add('active'), false);
+            });
+
+            ['dragleave', 'drop'].forEach(eventName => {
+                uploadArea.addEventListener(eventName, () => uploadArea.classList.remove('active'), false);
+            });
+
+            uploadArea.addEventListener('drop', handleDrop, false);
+
+            function handleDrop(e) {
+                let dt = e.dataTransfer;
+                let files = dt.files;
+
+                if (files.length > 0) {
+                    const file = files[0];
+                    showFilePreview(file);
+                }
+            }
+
+            function showFilePreview(file) {
+                // Hide the default drag and drop text
+                dragDropText.style.display = 'none';
+                dragDropIcons.style.display = 'none';
+                browseBtn.style.display = 'none';
+
+                // Show the file preview area
+                filePreview.style.display = 'block';
+
+                // Set the file name
+                fileNameElement.textContent = file.name;
+
+                // Set the appropriate icon based on file type
+                if (file.type.includes('pdf')) {
+                    fileIcon.className = 'fas fa-file-pdf display-4 mb-2 text-danger';
+                } else if (file.type.includes('image')) {
+                    fileIcon.className = 'fas fa-file-image display-4 mb-2 text-primary';
+                } else if (file.type.includes('ms-powerpoint') || file.name.endsWith('.ppt') || file.name.endsWith('.pptx')) {
+                    fileIcon.className = 'fas fa-file-powerpoint display-4 mb-2 text-warning';
+                } else {
+                    // Default icon
+                    fileIcon.className = 'fas fa-file-alt display-4 mb-2';
+                }
+            }
+
+            browseBtn.addEventListener('click', function (e) {
+                e.preventDefault();
+                const fileInput = document.createElement('input');
+                fileInput.type = 'file';
+                fileInput.style.display = 'none';
+                fileInput.onchange = function (e) {
+                    const file = e.target.files[0];
+                    if (file) {
+                        showFilePreview(file);
+                        // startVerification(file);
+                    }
+                };
+                document.body.appendChild(fileInput);
+                fileInput.click();
+                document.body.removeChild(fileInput);
+            });
+
+            // This is the click event for the "Browse Files" button
+            uploadArea.addEventListener('click', function () {
+                startVerification();
+            });
+        });
+    </script> -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const uploadArea = document.getElementById('uploadArea');
+            const progressBar = document.getElementById('progressBar');
+            const progressText = document.getElementById('progressText');
+            const resultCard = document.getElementById('resultCard');
+            const verifyAnotherBtn = document.getElementById('verifyAnotherBtn');
+            const resultIcon = document.getElementById('resultIcon');
+            const resultTitle = document.getElementById('resultTitle');
+            const resultDescription = document.getElementById('resultDescription');
+            const detailStatus = document.getElementById('detailStatus');
+
+            const filePreview = document.getElementById('filePreview');
+            const fileIcon = document.getElementById('fileIcon');
+            const fileNameElement = document.getElementById('fileName');
+            const dragDropText = uploadArea.querySelector('h5');
+            const dragDropIcons = uploadArea.querySelector('i');
+            const browseBtn = uploadArea.querySelector('.btn');
+
+            // Function to start the simulated verification process
+            function startVerification(file) {
+                // Reset UI
+                progressBar.style.width = '0%';
+                progressText.textContent = `Uploading document: ${file.name}...`;
+
+                // Simulate progress
+                let progress = 0;
+                const interval = setInterval(() => {
+                    progress += 5;
+                    progressBar.style.width = `${progress}%`;
+
+                    if (progress === 20) {
+                        progressText.textContent = 'Extracting text with OCR...';
+                    } else if (progress === 40) {
+                        progressText.textContent = 'Checking security features...';
+                    } else if (progress === 60) {
+                        progressText.textContent = 'Verifying against database...';
+                    } else if (progress === 80) {
+                        progressText.textContent = 'Running AI validation...';
+                    } else if (progress === 100) {
+                        clearInterval(interval);
+                        progressText.textContent = 'Verification complete!';
+
+                        // Show result - randomly select between verified and fraud for demo
+                        const isVerified = Math.random() > 0.3;
+                        showResult(isVerified);
+                    }
+                }, 200);
+            }
+
+            // Show verification result
+            function showResult(isVerified) {
+                if (isVerified) {
+                    resultIcon.className = 'fas fa-check-circle display-1 text-success';
+                    resultTitle.textContent = 'Verification Successful';
+                    resultDescription.textContent = 'This document has been verified as authentic.';
+                    detailStatus.className = 'badge bg-success';
+                    detailStatus.textContent = 'Verified';
+                } else {
+                    resultIcon.className = 'fas fa-times-circle display-1 text-danger';
+                    resultTitle.textContent = 'Potential Fraud Detected';
+                    resultDescription.textContent = 'This document shows signs of tampering or does not match official records.';
+                    detailStatus.className = 'badge bg-danger';
+                    detailStatus.textContent = 'Fraud Detected';
+                }
+
+                resultCard.style.display = 'block';
+            }
+
+            // Verify another button
+            verifyAnotherBtn.addEventListener('click', function () {
+                resultCard.style.display = 'none';
+                progressBar.style.width = '0%';
+                progressText.textContent = 'Waiting for document upload...';
+            });
+
+            // Add drag-and-drop event handlers
+            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                uploadArea.addEventListener(eventName, preventDefaults, false);
+            });
+
+            function preventDefaults(e) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+
+            ['dragenter', 'dragover'].forEach(eventName => {
+                uploadArea.addEventListener(eventName, () => uploadArea.classList.add('active'), false);
+            });
+
+            ['dragleave', 'drop'].forEach(eventName => {
+                uploadArea.addEventListener(eventName, () => uploadArea.classList.remove('active'), false);
+            });
+
+            uploadArea.addEventListener('drop', handleDrop, false);
+
+            function handleDrop(e) {
+                let dt = e.dataTransfer;
+                let files = dt.files;
+                if (files.length > 0) {
+                    const file = files[0];
+                    showFilePreview(file);
+                    startVerification(file);
+                }
+            }
+
+            function showFilePreview(file) {
+                // Hide the default drag and drop text
+                dragDropText.style.display = 'none';
+                dragDropIcons.style.display = 'none';
+                browseBtn.style.display = 'none';
+
+                // Show the file preview area
+                filePreview.style.display = 'block';
+
+                // Set the file name
+                fileNameElement.textContent = file.name;
+
+                // Set the appropriate icon based on file type
+                if (file.type.includes('pdf')) {
+                    fileIcon.className = 'fas fa-file-pdf display-4 mb-2 text-danger';
+                } else if (file.type.includes('image')) {
+                    fileIcon.className = 'fas fa-file-image display-4 mb-2 text-primary';
+                } else if (file.type.includes('ms-powerpoint') || file.name.endsWith('.ppt') || file.name.endsWith('.pptx')) {
+                    fileIcon.className = 'fas fa-file-powerpoint display-4 mb-2 text-warning';
+                } else {
+                    // Default icon
+                    fileIcon.className = 'fas fa-file-alt display-4 mb-2';
+                }
+            }
+
+            // This is the correct way to handle the "Browse Files" button click
+            browseBtn.addEventListener('click', function (e) {
+                e.preventDefault();
+                const fileInput = document.createElement('input');
+                fileInput.type = 'file';
+                fileInput.style.display = 'none';
+                fileInput.onchange = function (e) {
+                    const file = e.target.files[0];
+                    if (file) {
+                        showFilePreview(file);
+                        startVerification(file);
+                    }
+                };
+                document.body.appendChild(fileInput);
+                fileInput.click();
+                document.body.removeChild(fileInput);
+            });
+        });
+    </script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const loginBtn = document.getElementById('loginBtn');
+            const verifyBtn = document.getElementById('verifyBtn');
+            const loginModal = document.getElementById('loginModal');
+            const loginForm = document.getElementById('login-form-submit');
+            const forgotPasswordBtn = document.querySelector('.b-support[title="Forgot Password?"]');
+            const createAccountBtn = document.querySelector('.b-cta a');
+
+            function showLoginModal() {
+                loginModal.classList.add('visible');
+            }
+
+            function hideLoginModal() {
+                loginModal.classList.remove('visible');
+            }
+
+            loginBtn.addEventListener('click', function (e) {
+                const f = "{{ flag }}";
+                e.preventDefault();
+                if (f != "True")
+                    showLoginModal();
+                else {
+                    alert("already loged in");
+
+                }
+            });
+
+            verifyBtn.addEventListener('click', function (e) {
+                const f = "{{ flag }}";
+                e.preventDefault();
+                if (f != "True")
+                    showLoginModal();
+                else {
+                    alert("already loged in");
+                }
+            });
+
+            const backToLoginBtn = document.querySelector('.b-info');
+            if (backToLoginBtn) {
+                backToLoginBtn.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    closeLoginInfo();
+                });
+            }
+
+            loginModal.addEventListener('click', function (e) {
+                if (e.target === loginModal) {
+                    hideLoginModal();
+                }
+            });
+            loginForm.addEventListener('submit', async function (e) {
+                e.preventDefault();
+                const formData = new FormData(loginForm);
+                const data = Object.fromEntries(formData.entries());
+
+                try {
+                    const response = await fetch('/account/login', {
+                        method: 'POST',
+                        body: new URLSearchParams(data),
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded'
+                        }
+                    });
+
+                    const result = await response.json();
+
+                    if (result.success) {
+                        alert("Login Successful!");
+                        window.location.href = result.redirect_url;
 
 
+                    } else {
+                        alert(result.message);
+                    }
+                } catch (error) {
+                    alert('An error occurred. Please try again.');
+                    console.error('Error:', error);
+                }
+            });
+
+            if (forgotPasswordBtn) {
+                forgotPasswordBtn.addEventListener('click', function () {
+                    window.location.href = "{{ url_for('log.account_forgot_password') }}";
+                });
+            }
+
+            if (createAccountBtn) {
+                createAccountBtn.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    window.location.href = "{{ url_for('log.account_sign_up') }}";
+                });
+            }
+        });
+    </script>
 </body>
 
 </html>
+<!-- 
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jharkhand Academic Credential Verification</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #0d6efd;
+            --secondary: #6c757d;
+            --success: #198754;
+            --danger: #dc3545;
+            --warning: #ffc107;
+            --info: #0dcaf0;
+            --light: #f8f9fa;
+            --dark: #212529;
+            --gov-blue: #004685;
+            --gov-red: #d14545;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f7f9;
+        }
+
+        .navbar {
+            background: linear-gradient(90deg, var(--gov-blue) 0%, #0062cc 100%);
+        }
+
+        .logo-text {
+            font-weight: 700;
+            font-size: 1.5rem;
+        }
+
+        .hero-section {
+            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="2000" height="200" viewBox="0 0 2000 200"><rect fill="%23004685" width="2000" height="200"/><path fill="%230062cc" d="M0 0L2000 200H0V0Z"/></svg>') no-repeat;
+            background-size: cover;
+            color: white;
+            padding: 4rem 0;
+            margin-bottom: 2rem;
+        }
+
+        .card {
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s;
+            margin-bottom: 20px;
+            border: none;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+        }
+
+        .card-header {
+            border-radius: 10px 10px 0 0 !important;
+            font-weight: 600;
+        }
+
+        .feature-icon {
+            font-size: 2.5rem;
+            color: var(--gov-blue);
+            margin-bottom: 1rem;
+        }
+
+        .verification-step {
+            border-left: 3px solid var(--gov-blue);
+            padding-left: 20px;
+            margin-bottom: 30px;
+        }
+
+        .step-number {
+            background-color: var(--gov-blue);
+            color: white;
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 10px;
+        }
+
+        .status-badge {
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-weight: 600;
+        }
+
+        .verification-progress {
+            height: 10px;
+        }
+
+        .upload-area {
+            border: 2px dashed #ccc;
+            border-radius: 10px;
+            padding: 30px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .upload-area:hover {
+            border-color: var(--gov-blue);
+            background-color: rgba(0, 70, 133, 0.05);
+        }
+
+        .result-card {
+            display: none;
+        }
+
+        .footer {
+            background-color: var(--gov-blue);
+            color: white;
+            padding: 2rem 0;
+            margin-top: 3rem;
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--gov-blue);
+        }
+
+        .institution-logo {
+            height: 40px;
+            margin-right: 15px;
+            margin-bottom: 10px;
+        }
+
+        .verification-history {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .modal-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(5px);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            visibility: hidden;
+            opacity: 0;
+            transition: visibility 0.3s, opacity 0.3s;
+        }
+
+        .modal-container.visible {
+            visibility: visible;
+            opacity: 1;
+        }
+    </style>
+    <style>
+        @import "https://fonts.googleapis.com/css?family=Open+Sans|Quicksand:400,700";
+
+        .box {
+            width: 330px;
+            position: relative;
+            z-index: 1;
+            font-family: "Quicksand", sans-serif;
+        }
+
+        .box-form {
+            width: 320px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .box-login-tab {
+            width: 50%;
+            height: 40px;
+            position: relative;
+            float: left;
+            z-index: 1;
+            border-radius: 6px 6px 0 0;
+            transform: perspective(5px) rotateX(0.93deg) translateZ(-1px);
+            transform-origin: 0 0;
+            backface-visibility: hidden;
+            box-shadow: 15px -15px 30px rgba(0, 0, 0, 0.32);
+            background: linear-gradient(135deg, #005f73 0%, #004685 100%);
+        }
+
+        .box-login-title {
+            width: 35%;
+            height: 40px;
+            position: absolute;
+            float: left;
+            z-index: 2;
+            background: linear-gradient(135deg, #005f73 0%, #004685 100%);
+        }
+
+        .box-login {
+            position: relative;
+            top: -4px;
+            width: 320px;
+            background: #fdfdfd;
+            text-align: center;
+            overflow: hidden;
+            z-index: 2;
+            border-top-right-radius: 6px;
+            border-bottom-left-radius: 6px;
+            border-bottom-right-radius: 6px;
+            box-shadow: 15px 30px 30px rgba(0, 0, 0, 0.32);
+        }
+
+        .box-info {
+            width: 260px;
+            top: 60px;
+            position: absolute;
+            right: -5px;
+            padding: 15px 15px 15px 30px;
+            background-color: rgba(255, 255, 255, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            z-index: 0;
+            border-radius: 6px;
+            box-shadow: 15px 30px 30px rgba(0, 0, 0, 0.32);
+        }
+
+        .line-wh {
+            width: 100%;
+            height: 1px;
+            top: 0px;
+            margin: 12px auto;
+            position: relative;
+            border-top: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        h2,
+        h3 {
+            font-size: 16px;
+            letter-spacing: -1px;
+            line-height: 20px;
+        }
+
+        h2 {
+            color: #ffffff;
+            text-align: center;
+        }
+
+        h3 {
+            color: #ffffff;
+            text-align: right;
+        }
+
+        a {
+            text-decoration: none;
+        }
+
+        button:focus {
+            outline: 0;
+        }
+
+        .b {
+            height: 24px;
+            line-height: 24px;
+            background-color: transparent;
+            border: none;
+            cursor: pointer;
+        }
+
+        .b-form {
+            opacity: 0.5;
+            margin: 10px 20px;
+            float: right;
+        }
+
+        .b-info {
+            opacity: 0.5;
+            float: left;
+        }
+
+        .b-form:hover,
+        .b-info:hover {
+            opacity: 1;
+        }
+
+        .b-support,
+        .b-cta {
+            width: 100%;
+            padding: 0px 15px;
+            font-family: "Quicksand", sans-serif;
+            font-weight: 700;
+            letter-spacing: -1px;
+            font-size: 16px;
+            line-height: 32px;
+            cursor: pointer;
+            border-radius: 16px;
+        }
+
+        .b-support {
+            border: #0d0c08 1px solid;
+            background-color: transparent;
+            color: #508f98;
+            margin: 6px 0;
+        }
+
+        .b-cta {
+            border: #0d0c08 1px solid;
+            background-color: #508f98;
+            color: #fff;
+        }
+
+        .b-support:hover,
+        .b-cta:hover {
+            color: #fff;
+            background-color: #0d0c08;
+            border: #0d0c08 1px solid;
+        }
+
+        .fieldset-body {
+            display: table;
+        }
+
+        .fieldset-body p {
+            width: 100%;
+            display: inline-table;
+            padding: 5px 20px;
+            margin-bottom: 2px;
+        }
+
+        label {
+            float: left;
+            width: 100%;
+            top: 0px;
+            color: #032942;
+            font-size: 13px;
+            font-weight: 700;
+            text-align: left;
+            line-height: 1.5;
+        }
+
+        label.checkbox {
+            float: left;
+            padding: 5px 20px;
+            line-height: 1.7;
+        }
+
+        input[type="text"],
+        input[type="password"],
+        .text,
+        .pass {
+            width: 100%;
+            height: 32px;
+            padding: 0px 10px;
+            background-color: rgba(0, 0, 0, 0.03);
+            border: none;
+            display: inline;
+            color: #303030;
+            font-size: 16px;
+            font-weight: 400;
+            float: left;
+            box-shadow: inset 1px 1px 0px rgba(0, 0, 0, 0.05),
+                1px 1px 0px rgba(255, 255, 255, 1);
+        }
+
+        input[type="text"]:focus,
+        input[type="password"]:focus,
+        .textfoc,
+        .passfoc {
+            outline: none;
+        }
+
+        input[type="submit"],
+        .sub {
+            width: 100%;
+            height: 48px;
+            margin-top: 24px;
+            padding: 0px 20px;
+            font-family: "Quicksand", sans-serif;
+            font-weight: 700;
+            font-size: 18px;
+            color: #e9f5f4;
+            line-height: 40px;
+            text-align: center;
+            background-color: #508f98;
+            border: 0px #0d0c08 solid;
+            opacity: 1;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+
+        input[type="submit"]:hover,
+        .subhov {
+            background-color: #303030;
+            border: 1px #020f0e solid;
+        }
+
+        input[type="submit"]:focus,
+        .subfoc {
+            outline: none;
+        }
+
+        p.field span.i {
+            width: 24px;
+            height: 24px;
+            float: right;
+            position: relative;
+            margin-top: -26px;
+            right: 2px;
+            z-index: 2;
+            display: none;
+        }
+
+        .form-group {
+            margin: 0;
+            padding: 0;
+        }
+
+        .form-control {
+            width: 100%;
+            height: 32px;
+            padding: 0px 10px;
+            background-color: rgba(0, 0, 0, 0.03);
+            border: none;
+            display: inline;
+            color: #303030;
+            font-size: 16px;
+            font-weight: 400;
+            float: left;
+            box-shadow: inset 1px 1px 0px rgba(0, 0, 0, 0.05),
+                1px 1px 0px rgba(255, 255, 255, 1);
+        }
+
+        .form-control:focus {
+            background-color: #f8f8c6;
+            outline: none;
+        }
+
+        .submit-button {
+            width: 100%;
+            height: 48px;
+            margin-top: 24px;
+            padding: 0px 20px;
+            font-family: "Quicksand", sans-serif;
+            font-weight: 700;
+            font-size: 18px;
+            color: #e9f5f4;
+            line-height: 40px;
+            text-align: center;
+            background-color: #508f98;
+            border: 0px #0d0c08 solid;
+            opacity: 1;
+            cursor: pointer;
+            border-radius: 4px;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+
+        .submit-button:focus {
+            outline: none;
+        }
+
+        .submit-button:hover {
+            background-color: #303030;
+            border: 1px #020f0e solid;
+        }
+
+        .box-form,
+        .box-info,
+        .b,
+        .b-support,
+        .b-cta,
+        input[type="submit"],
+        p.field span.i {
+            -webkit-transition: all 0.3s;
+            -moz-transition: all 0.3s;
+            -ms-transition: all 0.3s;
+            -o-transition: all 0.3s;
+            transition: all 0.3s;
+        }
+    </style>
+</head>
+
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container">
+            <a class="navbar-brand d-flex align-items-center" href="#">
+                <i class="fas fa-graduation-cap me-2"></i>
+                <span class="logo-text">JACV</span>
+                <span class="ms-2">Jharkhand Academic Credential Verification</span>
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="#"><i class="fas fa-home me-1"></i> Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#"><i class="fas fa-university me-1"></i> Institutions</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#"><i class="fas fa-question-circle me-1"></i> Help</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" id="loginBtn"><i class="fas fa-user me-1"></i> Login</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="hero-section">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-8">
+                    <h1 class="display-4 fw-bold">Verify Academic Credentials with Confidence</h1>
+                    <p class="lead">The official platform for authenticating degrees and certificates issued by
+                        Jharkhand's educational institutions</p>
+                    <button class="btn btn-light btn-lg mt-3" id="verifyBtn">Verify a Document <i
+                            class="fas fa-arrow-right ms-2"></i></button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="row mb-5">
+            <div class="col-md-3 col-6 text-center">
+                <div class="stat-number">125,789</div>
+                <div class="text-muted">Verified Certificates</div>
+            </div>
+            <div class="col-md-3 col-6 text-center">
+                <div class="stat-number">42</div>
+                <div class="text-muted">Participating Institutions</div>
+            </div>
+            <div class="col-md-3 col-6 text-center">
+                <div class="stat-number">98.7%</div>
+                <div class="text-muted">Verification Accuracy</div>
+            </div>
+            <div class="col-md-3 col-6 text-center">
+                <div class="stat-number">1,243</div>
+                <div class="text-muted">Frauds Detected</div>
+            </div>
+        </div>
+
+        <div class="row mb-5">
+            <div class="col-lg-7">
+                <div class="card">
+                    <div class="card-header bg-white">
+                        <h5 class="mb-0"><i class="fas fa-file-upload me-2"></i> Verify a Certificate</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="upload-area" id="uploadArea">
+                            <i class="fas fa-cloud-upload-alt display-4 text-secondary mb-3"></i>
+                            <h5>Drag & Drop your document here</h5>
+                            <p class="text-muted">Supported formats: PDF, JPG, PNG</p>
+                            <button class="btn btn-primary mt-2">Browse Files</button>
+                        </div>
+
+                        <div class="mt-4">
+                            <h6>Verification Progress</h6>
+                            <div class="progress verification-progress mb-3">
+                                <div class="progress-bar" role="progressbar" style="width: 0%" id="progressBar"></div>
+                            </div>
+                            <div id="progressText" class="text-muted">Waiting for document upload...</div>
+                        </div>
+
+                        <div class="card result-card mt-4" id="resultCard">
+                            <div class="card-body">
+                                <div class="text-center mb-4">
+                                    <i class="fas fa-check-circle display-1 text-success" id="resultIcon"></i>
+                                    <h3 class="mt-3" id="resultTitle">Verification Successful</h3>
+                                    <p id="resultDescription">This document has been verified as authentic.</p>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <h6>Document Details</h6>
+                                        <ul class="list-group list-group-flush">
+                                            <li class="list-group-item d-flex justify-content-between">
+                                                <span>Name:</span>
+                                                <span id="detailName">Rajesh Kumar</span>
+                                            </li>
+                                            <li class="list-group-item d-flex justify-content-between">
+                                                <span>Institution:</span>
+                                                <span id="detailInstitution">Ranchi University</span>
+                                            </li>
+                                            <li class="list-group-item d-flex justify-content-between">
+                                                <span>Degree:</span>
+                                                <span id="detailDegree">Bachelor of Technology</span>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <h6>Verification Details</h6>
+                                        <ul class="list-group list-group-flush">
+                                            <li class="list-group-item d-flex justify-content-between">
+                                                <span>Certificate ID:</span>
+                                                <span id="detailCertId">RU/BTECH/2021/08732</span>
+                                            </li>
+                                            <li class="list-group-item d-flex justify-content-between">
+                                                <span>Issue Date:</span>
+                                                <span id="detailDate">May 15, 2021</span>
+                                            </li>
+                                            <li class="list-group-item d-flex justify-content-between">
+                                                <span>Status:</span>
+                                                <span class="badge bg-success" id="detailStatus">Verified</span>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+
+                                <div class="mt-4 text-center">
+                                    <button class="btn btn-outline-primary me-2"><i class="fas fa-download me-1"></i>
+                                        Download Report</button>
+                                    <button class="btn btn-primary" id="verifyAnotherBtn"><i
+                                            class="fas fa-redo me-1"></i> Verify Another Document</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-5">
+                <div class="card">
+                    <div class="card-header bg-white">
+                        <h5 class="mb-0"><i class="fas fa-history me-2"></i> Recent Verifications</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="verification-history">
+                            <div class="d-flex justify-content-between border-bottom pb-3 mb-3">
+                                <div>
+                                    <div class="fw-bold">Amit Sharma</div>
+                                    <div class="text-muted small">B.Com - Vinoba Bhave University</div>
+                                </div>
+                                <div class="text-end">
+                                    <div class="badge bg-success">Verified</div>
+                                    <div class="text-muted small">Today, 11:23 AM</div>
+                                </div>
+                            </div>
+                            <div class="d-flex justify-content-between border-bottom pb-3 mb-3">
+                                <div>
+                                    <div class="fw-bold">Priya Singh</div>
+                                    <div class="text-muted small">M.Tech - Birla Institute of Technology</div>
+                                </div>
+                                <div class="text-end">
+                                    <div class="badge bg-danger">Fraud Detected</div>
+                                    <div class="text-muted small">Today, 10:45 AM</div>
+                                </div>
+                            </div>
+                            <div class="d-flex justify-content-between border-bottom pb-3 mb-3">
+                                <div>
+                                    <div class="fw-bold">Sanjay Mehta</div>
+                                    <div class="text-muted small">B.A - Nilamber-Pitamber University</div>
+                                </div>
+                                <div class="text-end">
+                                    <div class="badge bg-success">Verified</div>
+                                    <div class="text-muted small">Yesterday, 4:32 PM</div>
+                                </div>
+                            </div>
+                            <div class="d-flex justify-content-between border-bottom pb-3 mb-3">
+                                <div>
+                                    <div class="fw-bold">Neha Gupta</div>
+                                    <div class="text-muted small">B.Sc - Kolhan University</div>
+                                </div>
+                                <div class="text-end">
+                                    <div class="badge bg-warning text-dark">Needs Review</div>
+                                    <div class="text-muted small">Yesterday, 2:15 PM</div>
+                                </div>
+                            </div>
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <div class="fw-bold">Rahul Verma</div>
+                                    <div class="text-muted small">MBA - Jharkhand Rai University</div>
+                                </div>
+                                <div class="text-end">
+                                    <div class="badge bg-success">Verified</div>
+                                    <div class="text-muted small">Apr 12, 2023</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card mt-4">
+                    <div class="card-header bg-white">
+                        <h5 class="mb-0"><i class="fas fa-info-circle me-2"></i> How It Works</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="verification-step">
+                            <h6><span class="step-number">1</span> Upload Document</h6>
+                            <p class="text-muted">Upload a scan or photo of the academic certificate you want to verify
+                            </p>
+                        </div>
+                        <div class="verification-step">
+                            <h6><span class="step-number">2</span> Automated Analysis</h6>
+                            <p class="text-muted">Our system checks security features, extracts text, and validates
+                                format</p>
+                        </div>
+                        <div class="verification-step">
+                            <h6><span class="step-number">3</span> Database Verification</h6>
+                            <p class="text-muted">We cross-reference details with the official institutional database
+                            </p>
+                        </div>
+                        <div class="verification-step">
+                            <h6><span class="step-number">4</span> Get Results</h6>
+                            <p class="text-muted">Receive a comprehensive report on the document's authenticity</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <h3 class="text-center mb-4">Why Use Our Verification System?</h3>
+        <div class="row mb-5">
+            <div class="col-md-4">
+                <div class="card h-100">
+                    <div class="card-body text-center">
+                        <div class="feature-icon">
+                            <i class="fas fa-shield-alt"></i>
+                        </div>
+                        <h5>Advanced Security</h5>
+                        <p>Uses AI and blockchain technology to detect even the most sophisticated forgeries</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card h-100">
+                    <div class="card-body text-center">
+                        <div class="feature-icon">
+                            <i class="fas fa-bolt"></i>
+                        </div>
+                        <h5>Instant Results</h5>
+                        <p>Most verifications are completed in under 2 minutes, saving you time and effort</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card h-100">
+                    <div class="card-body text-center">
+                        <div class="feature-icon">
+                            <i class="fas fa-database"></i>
+                        </div>
+                        <h5>Comprehensive Database</h5>
+                        <p>Direct integration with participating institutions across Jharkhand</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mb-5">
+            <div class="card-header">
+                <h5 class="mb-0">Participating Institutions</h5>
+            </div>
+            <div class="card-body">
+                <div class="d-flex flex-wrap justify-content-center">
+                    <img src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='40' viewBox='0 0 100 40'><rect width='100' height='40' fill='%23f0f0f0'/><text x='50' y='22' font-family='Arial' font-size='12' text-anchor='middle' fill='%23333'>Ranchi Univ</text></svg>"
+                        class="institution-logo">
+                    <img src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='40' viewBox='0 0 100 40'><rect width='100' height='40' fill='%23f0f0f0'/><text x='50' y='22' font-family='Arial' font-size='12' text-anchor='middle' fill='%23333'>BIT Mesra</text></svg>"
+                        class="institution-logo">
+                    <img src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='40' viewBox='0 0 100 40'><rect width='100' height='40' fill='%23f0f0f0'/><text x='50' y='22' font-family='Arial' font-size='12' text-anchor='middle' fill='%23333'>Vinoba Bhave</text></svg>"
+                        class="institution-logo">
+                    <img src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='40' viewBox='0 0 100 40'><rect width='100' height='40' fill='%23f0f0f0'/><text x='50' y='22' font-family='Arial' font-size='12' text-anchor='middle' fill='%23333'>Kolhan Univ</text></svg>"
+                        class="institution-logo">
+                    <img src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='40' viewBox='0 0 100 40'><rect width='100' height='40' fill='%23f0f0f0'/><text x='50' y='22' font-family='Arial' font-size='12' text-anchor='middle' fill='%23333'>Jharkhand Rai</text></svg>"
+                        class="institution-logo">
+                    <img src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='40' viewBox='0 0 100 40'><rect width='100' height='40' fill='%23f0f0f0'/><text x='50' y='22' font-family='Arial' font-size='12' text-anchor='middle' fill='%23333'>NPU</text></svg>"
+                        class="institution-logo">
+                </div>
+                <div class="text-center mt-3">
+                    <button class="btn btn-outline-primary">View All Institutions</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-4">
+                    <h5>JACV System</h5>
+                    <p>The official academic credential verification platform of the Government of Jharkhand</p>
+                </div>
+                <div class="col-md-2">
+                    <h5>Quick Links</h5>
+                    <ul class="list-unstyled">
+                        <li><a href="#" class="text-white">Home</a></li>
+                        <li><a href="#" class="text-white">Verify</a></li>
+                        <li><a href="#" class="text-white">Institutions</a></li>
+                        <li><a href="#" class="text-white">Help</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-3">
+                    <h5>Contact Us</h5>
+                    <ul class="list-unstyled">
+                        <li><i class="fas fa-envelope me-2"></i> support@jacv.jharkhand.gov.in</li>
+                        <li><i class="fas fa-phone me-2"></i> +91 0651-XXXXXXX</li>
+                        <li><i class="fas fa-map-marker-alt me-2"></i> Higher Education Department, Jharkhand</li>
+                    </ul>
+                </div>
+                <div class="col-md-3">
+                    <h5>Follow Us</h5>
+                    <div class="d-flex">
+                        <a href="#" class="text-white me-3"><i class="fab fa-twitter fa-2x"></i></a>
+                        <a href="#" class="text-white me-3"><i class="fab fa-facebook fa-2x"></i></a>
+                        <a href="#" class="text-white me-3"><i class="fab fa-linkedin fa-2x"></i></a>
+                        <a href="#" class="text-white"><i class="fab fa-youtube fa-2x"></i></a>
+                    </div>
+                </div>
+            </div>
+            <hr class="bg-light">
+            <div class="row">
+                <div class="col-md-6">
+                    <p class="mb-0">© 2023 Government of Jharkhand. All rights reserved.</p>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <a href="#" class="text-white me-3">Privacy Policy</a>
+                    <a href="#" class="text-white me-3">Terms of Service</a>
+                    <a href="#" class="text-white">Accessibility</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <div class="modal-container" id="loginModal">
+        <div class="box">
+            <div class="box-form">
+                <div class="box-login-tab"></div>
+                <div class="box-login-title">
+                    <div class="i i-login"></div>
+                    <h2>LOGIN</h2>
+                </div>
+                <div class="box-login">
+                    <div class="fieldset-body" id="login_form">
+                        <button onclick="openLoginInfo();" class="b b-form i i-more" title="More Information"></button>
+                        <form class="form-group" id="login-form-submit" action="{{ url_for('log.account_login') }}"
+                            method="POST" novalidate>
+                            <p class="field">
+                                <label for="email">Email address</label> <br>
+                                <input type="text" id="email" name="email" size="30" class="text textfoc form-control">
+                                <span id="valida" class="i i-warning"></span>
+                            </p>
+                            <p class="field">
+                                <label for="password">Password</label> <br>
+                                <input type="password" id="password" name="password" size="30"
+                                    class="pass passfoc form-control">
+                                <span id="valida" class="i i-close"></span>
+                            </p>
+                            <label class="checkbox">
+                                <input type="checkbox" name="remember_me"> Keep me Signed in
+                            </label>
+                            <div class="form-group">
+                                <button type="submit" class="sub subhov subfoc submit-button">Submit</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <div class="box-info">
+                <p>
+                    <button onclick="closeLoginInfo();" class="b b-info i i-left" title="Back to Sign In"></button>
+                <h3>Need Help?</h3>
+                </p>
+                <div class="line-wh"></div>
+                <button onclick="navigateToForgotPassword();" class="b-support" title="Forgot Password?">Forgot
+                    Password?</button>
+                <button onclick="" class="b-support" title="Contact Support">Contact Support</button>
+                <div class="line-wh"></div>
+                <button onclick="navigateToSignUp();" class="b-cta" title="Sign up now!">
+                    <a href="#" class="custom-link">CREATE ACCOUNT</a>
+                </button>
+            </div>
+        </div>
+    </div>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="{{ url_for('static', filename='scripts/loginjs.js') }}"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const loginBtn = document.getElementById('loginBtn');
+            const verifyBtn = document.getElementById('verifyBtn');
+            const loginModal = document.getElementById('loginModal');
+            const loginForm = document.getElementById('login-form-submit');
+            const forgotPasswordBtn = document.querySelector('.b-support[title="Forgot Password?"]');
+            const createAccountBtn = document.querySelector('.b-cta a');
+            const welcomeText = document.getElementById('welcomeText');
+
+            // Initial state check for user session
+            if ('{{ session.get("username") }}') {
+                loginBtn.style.display = 'none';
+                welcomeText.style.display = 'block';
+                welcomeText.innerHTML = 'Welcome, {{ session.get("username") }}';
+            }
+
+            function showLoginModal() {
+                loginModal.classList.add('visible');
+            }
+
+            function hideLoginModal() {
+                loginModal.classList.remove('visible');
+            }
+
+            loginBtn.addEventListener('click', function (e) {
+                e.preventDefault();
+                showLoginModal();
+            });
+
+            verifyBtn.addEventListener('click', function (e) {
+                e.preventDefault();
+                // Check if the user is logged in
+                if ('{{ session.get("username") }}') {
+                    // User is logged in, enable file drop functionality
+                    alert('File drop functionality enabled!');
+                    document.getElementById('uploadArea').classList.add('active');
+                } else {
+                    // User is not logged in, show login modal
+                    showLoginModal();
+                }
+            });
+
+            const backToLoginBtn = document.querySelector('.b-info');
+            if (backToLoginBtn) {
+                backToLoginBtn.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    closeLoginInfo();
+                });
+            }
+
+            loginModal.addEventListener('click', function (e) {
+                if (e.target === loginModal) {
+                    hideLoginModal();
+                }
+            });
+
+            loginForm.addEventListener('submit', async function (e) {
+                e.preventDefault();
+                const formData = new FormData(loginForm);
+                const data = Object.fromEntries(formData.entries());
+
+                try {
+                    const response = await fetch('/account/login', {
+                        method: 'POST',
+                        body: new URLSearchParams(data),
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded'
+                        }
+                    });
+
+                    const result = await response.json();
+
+                    if (result.success) {
+                        alert("Login Successful!");
+                        window.location.href = result.redirect_url;
+                    } else {
+                        alert(result.message);
+                    }
+                } catch (error) {
+                    alert('An error occurred. Please try again.');
+                    console.error('Error:', error);
+                }
+            });
+
+            if (forgotPasswordBtn) {
+                forgotPasswordBtn.addEventListener('click', function () {
+                    window.location.href = "{{ url_for('log.account_forgot_password') }}";
+                });
+            }
+
+            if (createAccountBtn) {
+                createAccountBtn.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    window.location.href = "{{ url_for('log.account_sign_up') }}";
+                });
+            }
+        });
+    </script>
+</body>
+
+</html> -->

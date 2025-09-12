@@ -6,6 +6,7 @@ import smtplib
 import ssl
 from flask_restx import Resource, Namespace
 from flask import request, render_template, make_response, flash, redirect, url_for, session
+from src.yatharth.api.endpoints.login import MyForm
 
 
 CONTACT_API = Namespace(
@@ -34,10 +35,13 @@ class ContactForm(FlaskForm):
 class Main(Resource):
     def get(self):
         contact_form = ContactForm()
-        return make_response(render_template('index.html', contact_form=contact_form))
+        form = MyForm()
+        username = session.get('username')
+        return make_response(render_template('index.html', contact_form=contact_form, form=form, flag="True", username=username))
 
     def post(self):
         contact_form = ContactForm()
+        form = MyForm()
         if contact_form.validate_on_submit():
             recipient_email = "transrectsalesandservices@gmail.com"
             subject = contact_form.subject.data
@@ -46,10 +50,10 @@ class Main(Resource):
             send_email(recipient_email, subject, message)
             flash("Your message has been sent successfully!", "success")
             # Redirect to the contact page
-            return make_response(render_template('index.html', contact_form=contact_form))
+            return make_response(render_template('index.html', contact_form=contact_form, form=form))
 
         flash("Your message could not be sent. Please try again.", "error")
-        return make_response(render_template('index.html', contact_form=contact_form))
+        return make_response(render_template('index.html', contact_form=contact_form, form=form))
 
 
 def send_email(recipient_email, subject, message):

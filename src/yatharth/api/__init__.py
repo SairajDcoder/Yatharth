@@ -4,6 +4,8 @@ from flask_migrate import Migrate
 from src.yatharth.api.endpoints import AUTH_BLUEPRINT
 from src.yatharth.database import db
 from src.yatharth.database.login_model import Login
+from src.yatharth.database.verifyHistory_model import VerificationHistory
+from src.yatharth.api.endpoints.login import MyForm
 
 
 def create_app():
@@ -13,8 +15,8 @@ def create_app():
 
     @app.route('/')
     def index():
-        return redirect(url_for('log.account_login'))
-        # return make_response(render_template("index.html"))
+        form = MyForm()
+        return make_response(render_template("index.html", form=form, flag="False", username="Login"))
 
     @app.route('/admin')
     def admin():

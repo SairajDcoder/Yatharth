@@ -2,11 +2,12 @@ import random
 import smtplib
 import ssl
 from flask_restx import Resource, Namespace
-from flask import request, render_template, make_response, flash, redirect, url_for, session
+from flask import request, render_template, make_response, flash, redirect, url_for, session, jsonify
 from flask_wtf import FlaskForm
 from wtforms import TelField, StringField, PasswordField, SubmitField, EmailField, BooleanField, TextAreaField
 from wtforms.validators import Length, Email, EqualTo, DataRequired, Optional
-
+from src.yatharth.database.login_model import Login as LoginModel
+from src.yatharth.database import db
 
 LOGIN_API = Namespace('account', description='login related operations')
 
@@ -109,60 +110,39 @@ def generate_verification_code():
 @LOGIN_API.route('/login', methods=['GET', 'POST'])
 class Login(Resource):
     def get(self):
-        form = MyForm()
-        form.adjust_for_login()
-        if session.get('keep_signed_in') and session.get('email') == session.get('last_email'):
-            if (session.get('last_email') == "transrectsalesandservices@gmail.com"):
-                print(session.get('last_email'))
-                return make_response(render_template('./admin/admin.html', form=form, admin=True))
-            print(session.get('last_email'))
-            return redirect(url_for('log.account_home'))
-        return make_response(render_template('./loginhtml.html', form=form))
+        return jsonify({"message": "This endpoint is for login POST requests."})
 
     def post(self):
         form = MyForm()
         form.adjust_for_login()
+        form.email.data = request.form.get('email')
+        form.password.data = request.form.get('password')
+        form.remember_me.data = 'remember_me' in request.form
+
         if form.validate_on_submit():
-            from src.yatharth.database.login_model import Login
-            # from src.yatharth.database.admin_model import Admin
-            flag = False
-            log = Login.query.all()
-            email = form.email.data
-            password = form.password.data
-            session['last_email'] = email
-            if form.remember_me.data:
-                session['keep_signed_in'] = True
-            else:
-                session['keep_signed_in'] = False
-            session['email'] = email
+            user = LoginModel.query.filter_by(email=form.email.data).first()
+            if user and user.password == form.password.data:
+                session['email'] = user.email
+                session['username'] = user.username
+                session['keep_signed_in'] = form.remember_me.data
+                session['last_email'] = user.email
 
-            # admin = Admin.query.filter_by(
-            #     email=email, password=password).first()
-            # if admin:
-            #     session['username'] = admin.name
-            #     return make_response(render_template('./admin/admin.html', form=form, admin=True))
-
-            u_email = None
-            for data in log:
-                if data.email == email and data.password == password:
-                    flag = True
-                    u_email = data.email
-                    break
-            if flag:
+                # Check for admin
+                if user.email == "transrectsalesandservices@gmail.com":
+                    flash('admin login successful', 'success')
+                    return jsonify({"success": True, "redirect_url": url_for('log.admin')})
                 flash('Successfully Logged In', 'success')
-                myuser = Login.query.filter_by(email=email).first()
-                if myuser:
-                    session['username'] = myuser.username
-                return redirect(url_for('log.communication_main'))
+                session['username'] = user.username
+                return jsonify({"success": True, "redirect_url": url_for('log.communication_main'),
+                                "username": user.username})
             else:
                 flash('Incorrect email or password. Please try again.', 'error')
-                print("Flash message triggered for incorrect credentials")
-                return make_response(render_template('./loginhtml.html', form=form))
+                return jsonify({"success": False, "message": "Incorrect email or password. Please try again."})
 
-        for field, errors in form.errors.items():
-            for error in errors:
-                flash(f"{field.capitalize()}: {error}", "error")
-        return make_response(render_template('./loginhtml.html', form=form))
+        errors = {field: [error for error in form.errors[field]]
+                  for field in form.errors}
+        flash('Form validation failed.', 'error')
+        return jsonify({"success": False, "errors": errors, "message": "Form validation failed."})
 
 
 @LOGIN_API.route('/logout')
@@ -191,8 +171,6 @@ class SignUp(Resource):
 
     def post(self):
         from src.yatharth.database import db
-        from src.yatharth.database.login_model import Login
-        # from src.yatharth.database.user_model import User
         form = MyForm()
         form.make_required()
         if form.validate_on_submit():
@@ -200,19 +178,12 @@ class SignUp(Resource):
             email = form.email.data
             phone_no = int(form.phone_number.data)
             password = form.password.data
-
-            login = Login(username=username, email=email,
-                          phone_no=phone_no, password=password)
-
-            # user = User(username=username, email=email,
-            #             phone_no=phone_no, password=password)
-
+            login = LoginModel(username=username, email=email,
+                               phone_no=phone_no, password=password)
             db.session.add(login)
-            # db.session.add(user)
             db.session.commit()
             flash('Account created successfully. Please login.', 'success')
             return make_response(render_template('./loginhtml.html', form=form))
-
         for field, errors in form.errors.items():
             for error in errors:
                 flash(f"{field.capitalize()}: {error}", "error")
@@ -229,7 +200,6 @@ class ForgotPassword(Resource):
         form = VerificationForm()
         action = request.form.get('action')
         email = form.email.data
-
         if action == 'send_email':
             if form.validate_on_submit():
                 verification_code = generate_verification_code()
@@ -250,7 +220,6 @@ class ForgotPassword(Resource):
                 return redirect(url_for('log.account_reset_password'))
             else:
                 flash('Invalid verification code. Please try again.', 'error')
-
         return make_response(render_template('forgot_password.html', form=form))
 
 
@@ -297,28 +266,13 @@ class ResetPassword(Resource):
         if form.validate_on_submit():
             email = session.get('email')
             new_password = form.new_password.data
-            if (email != "transrectsalesandservices@gmail.com"):
-                from src.yatharth.database import db
-                from src.yatharth.database.login_model import Login
-                user = Login.query.filter_by(email=email).first()
-                if user:
-                    user.password = new_password
-                    db.session.commit()
-                    flash(
-                        'Password reset successfully. Please login with your new password.', 'success')
-                else:
-                    flash('User not found. Please try again.', 'error')
-                return redirect(url_for('log.account_login'))
+            user = LoginModel.query.filter_by(email=email).first()
+            if user:
+                user.password = new_password
+                db.session.commit()
+                flash(
+                    'Password reset successfully. Please login with your new password.', 'success')
             else:
-                # from src.yatharth.database import db
-                # from src.yatharth.database.admin_model import Admin
-                # admin = Admin.query.filter_by(email=email).first()
-                # if admin:
-                #     admin.password = new_password
-                #     db.session.commit()
-                #     flash(
-                #         'Password reset successfully. Please login with your new password.', 'success')
-                # else:
                 flash('User not found. Please try again.', 'error')
-                return redirect(url_for('log.account_login'))
+            return redirect(url_for('log.account_login'))
         return make_response(render_template('reset_password.html', form=form))
