@@ -1,0 +1,713 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jharkhand Academic Certificate Verification</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #1a5276;
+            --secondary-color: #2e86c1;
+            --accent-color: #f39c12;
+            --light-color: #ecf0f1;
+            --dark-color: #2c3e50;
+            --success-color: #27ae60;
+            --warning-color: #e74c3c;
+            --govt-blue: #1565C0;
+            --govt-light-blue: #64B5F6;
+            --govt-gold: #FFC107;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f8f9fa;
+            color: #333;
+            line-height: 1.6;
+        }
+        
+        /* Navbar Styles */
+        .navbar {
+            background: linear-gradient(135deg, var(--govt-blue) 0%, var(--primary-color) 100%);
+            color: white;
+            padding: 0.8rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .navbar .logo {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .navbar .logo img {
+            height: 50px;
+        }
+        
+        .navbar .logo-text {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .navbar .logo-text h1 {
+            font-size: 1.8rem;
+            font-weight: 700;
+        }
+        
+        .navbar .logo-text span {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+        
+        .nav-links {
+            display: flex;
+            list-style: none;
+            gap: 25px;
+        }
+        
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            padding: 5px 10px;
+            border-radius: 4px;
+            transition: background 0.3s;
+        }
+        
+        .nav-links a:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+        
+        /* Header Section */
+        .header {
+            background: linear-gradient(rgba(21, 101, 192, 0.8), rgba(21, 101, 192, 0.9)), url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><rect fill="%231565C0" width="100" height="100"/><path fill="%231965a0" d="M0 0L100 100"></path><path fill="%231965a0" d="M100 0L0 100"></path></svg>');
+            background-size: cover;
+            color: white;
+            text-align: center;
+            padding: 3rem 2rem;
+            margin-bottom: 2rem;
+        }
+        
+        .header h2 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3);
+        }
+        
+        .header p {
+            font-size: 1.2rem;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        /* Main Content */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        .verification-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+        
+        @media (max-width: 900px) {
+            .verification-section {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        /* Upload Section */
+        .upload-section {
+            background: white;
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .upload-section h3 {
+            color: var(--primary-color);
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--light-color);
+        }
+        
+        .upload-area {
+            border: 2px dashed var(--secondary-color);
+            border-radius: 8px;
+            padding: 30px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-bottom: 20px;
+        }
+        
+        .upload-area:hover {
+            background-color: #f0f8ff;
+        }
+        
+        .upload-area i {
+            font-size: 3rem;
+            color: var(--secondary-color);
+            margin-bottom: 15px;
+        }
+        
+        .upload-area p {
+            color: #666;
+            margin-bottom: 15px;
+        }
+        
+        .upload-btn {
+            background: linear-gradient(to right, var(--govt-blue), var(--secondary-color));
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 5px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .upload-btn:hover {
+            background: linear-gradient(to right, var(--secondary-color), var(--govt-blue));
+            transform: translateY(-2px);
+            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .upload-btn:disabled {
+            background: #95a5a6;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        
+        .file-input {
+            display: none;
+        }
+        
+        .file-info {
+            margin-top: 15px;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 5px;
+            display: none;
+        }
+        
+        /* Verification Results */
+        .results-section {
+            background: white;
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            position: relative;
+            min-height: 400px;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .results-section h3 {
+            color: var(--primary-color);
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--light-color);
+        }
+        
+        .verification-status {
+            text-align: center;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+            display: none;
+        }
+        
+        .status-valid {
+            background-color: rgba(39, 174, 96, 0.1);
+            border: 1px solid var(--success-color);
+            color: var(--success-color);
+        }
+        
+        .status-invalid {
+            background-color: rgba(231, 76, 60, 0.1);
+            border: 1px solid var(--warning-color);
+            color: var(--warning-color);
+        }
+        
+        .verification-criteria {
+            margin-top: 20px;
+        }
+        
+        .criteria-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 15px;
+            margin-bottom: 10px;
+            background: #f8f9fa;
+            border-radius: 5px;
+            transition: all 0.3s;
+        }
+        
+        .criteria-item.checked {
+            background: rgba(39, 174, 96, 0.1);
+        }
+        
+        .criteria-item .check-icon {
+            margin-right: 15px;
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+            background: #ddd;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+        }
+        
+        .criteria-item.checked .check-icon {
+            background: var(--success-color);
+        }
+        
+        /* Features Section */
+        .features-section {
+            padding: 40px 0;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            margin-bottom: 40px;
+        }
+        
+        .features-section h3 {
+            text-align: center;
+            color: var(--primary-color);
+            margin-bottom: 30px;
+        }
+        
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 25px;
+            padding: 0 20px;
+        }
+        
+        .feature-card {
+            text-align: center;
+            padding: 25px 20px;
+            border-radius: 8px;
+            background: #f8f9fa;
+            transition: all 0.3s;
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+        
+        .feature-card i {
+            font-size: 2.5rem;
+            color: var(--secondary-color);
+            margin-bottom: 15px;
+        }
+        
+        .feature-card h4 {
+            color: var(--dark-color);
+            margin-bottom: 10px;
+        }
+        
+        /* Footer */
+        .footer {
+            background: linear-gradient(135deg, var(--govt-blue) 0%, var(--primary-color) 100%);
+            color: white;
+            padding: 30px 0 10px;
+        }
+        
+        .footer-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 30px;
+            margin-bottom: 20px;
+        }
+        
+        .footer-section h4 {
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+            position: relative;
+            padding-bottom: 10px;
+        }
+        
+        .footer-section h4::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 50px;
+            height: 2px;
+            background: var(--govt-gold);
+        }
+        
+        .footer-section p, .footer-section a {
+            color: rgba(255, 255, 255, 0.8);
+            margin-bottom: 10px;
+            display: block;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+        
+        .footer-section a:hover {
+            color: white;
+        }
+        
+        .footer-bottom {
+            text-align: center;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .spinner {
+            animation: spin 1s linear infinite;
+            display: none;
+            margin-left: 10px;
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="logo">
+            <img src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='40' fill='%23FFC107' /><text x='50' y='60' font-family='Arial' font-size='30' text-anchor='middle' fill='%231565C0'>J</text></svg>" alt="Jharkhand Government Logo">
+            <div class="logo-text">
+                <h1>Jharkhand Academic Verification</h1>
+                <span>Department of Higher and Technical Education</span>
+            </div>
+        </div>
+        <ul class="nav-links">
+            <li><a href="#">Home</a></li>
+            <li><a href="#">Institutions</a></li>
+            <li><a href="#">Verification Process</a></li>
+            <li><a href="#">Contact</a></li>
+            <li><a href="#">Our Team - Yatharth</a></li>
+        </ul>
+    </nav>
+
+    <!-- Header Section -->
+    <header class="header">
+        <h2>Academic Certificate Authenticity Validator</h2>
+        <p>Verify the authenticity of academic certificates issued by recognized institutions in Jharkhand. Our advanced system detects forged documents and ensures the integrity of academic credentials.</p>
+    </header>
+
+    <!-- Main Content -->
+    <div class="container">
+        <div class="verification-section">
+            <!-- Upload Section -->
+            <div class="upload-section">
+                <h3>Upload Certificate</h3>
+                <div class="upload-area" id="dropZone">
+                    <i class="fas fa-file-upload"></i>
+                    <p>Drag & Drop your certificate file here</p>
+                    <p>OR</p>
+                    <button class="upload-btn" id="uploadBtn">
+                        <i class="fas fa-upload"></i> Browse Files
+                    </button>
+                    <input type="file" id="fileInput" class="file-input" accept=".pdf,.jpg,.jpeg,.png">
+                </div>
+                <div class="file-info" id="fileInfo">
+                    <p><strong>Selected file:</strong> <span id="fileName"></span></p>
+                    <p><strong>File type:</strong> <span id="fileType"></span></p>
+                    <p><strong>File size:</strong> <span id="fileSize"></span></p>
+                </div>
+                <div style="margin-top: 20px;">
+                    <p><strong>Supported formats:</strong> PDF, JPG, JPEG, PNG (Max size: 10MB)</p>
+                    <p><i class="fas fa-shield-alt" style="color: var(--secondary-color);"></i> Your data is secure and encrypted during verification</p>
+                </div>
+            </div>
+
+            <!-- Verification Results -->
+            <div class="results-section">
+                <h3>Verification Results</h3>
+                <div class="verification-status" id="verificationStatus">
+                    <i class="fas fa-check-circle" style="font-size: 3rem; margin-bottom: 15px;"></i>
+                    <h4 id="statusTitle">Verification Complete</h4>
+                    <p id="statusMessage">Your certificate has been successfully verified.</p>
+                </div>
+                
+                <div class="verification-criteria">
+                    <div class="criteria-item" id="criteria1">
+                        <div class="check-icon"><i class="fas fa-check"></i></div>
+                        <div>
+                            <h4>Data Extraction & Verification</h4>
+                            <p>Extracted text matches institutional records</p>
+                        </div>
+                    </div>
+                    <div class="criteria-item" id="criteria2">
+                        <div class="check-icon"><i class="fas fa-check"></i></div>
+                        <div>
+                            <h4>Font & Format Analysis</h4>
+                            <p>Font style and color match official standards</p>
+                        </div>
+                    </div>
+                    <div class="criteria-item" id="criteria3">
+                        <div class="check-icon"><i class="fas fa-check"></i></div>
+                        <div>
+                            <h4>Signature Verification</h4>
+                            <p>Digital or physical signature validated</p>
+                        </div>
+                    </div>
+                    <div class="criteria-item" id="criteria4">
+                        <div class="check-icon"><i class="fas fa-check"></i></div>
+                        <div>
+                            <h4>QR Code / Barcode Validation</h4>
+                            <p>Embedded security features verified</p>
+                        </div>
+                    </div>
+                    <div class="criteria-item" id="criteria5">
+                        <div class="check-icon"><i class="fas fa-check"></i></div>
+                        <div>
+                            <h4>Institutional Authentication</h4>
+                            <p>Issuing institution credentials confirmed</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Features Section -->
+        <div class="features-section">
+            <h3>How Our Verification System Works</h3>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <i class="fas fa-camera"></i>
+                    <h4>OCR Technology</h4>
+                    <p>Advanced Optical Character Recognition extracts text from scanned documents</p>
+                </div>
+                <div class="feature-card">
+                    <i class="fas fa-database"></i>
+                    <h4>Database Matching</h4>
+                    <p>Compares extracted data with official institutional records</p>
+                </div>
+                <div class="feature-card">
+                    <i class="fas fa-shield-alt"></i>
+                    <h4>Security Features</h4>
+                    <p>Verifies digital signatures, watermarks, and security patterns</p>
+                </div>
+                <div class="feature-card">
+                    <i class="fas fa-barcode"></i>
+                    <h4>QR Code Validation</h4>
+                    <p>Scans and validates embedded QR codes for authenticity</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h4>About Us</h4>
+                    <p>The Jharkhand Academic Verification System is an initiative by the Department of Higher and Technical Education to combat fraud and preserve academic integrity.</p>
+                </div>
+                <div class="footer-section">
+                    <h4>Quick Links</h4>
+                    <a href="#">Institution Registration</a>
+                    <a href="#">Verification Process</a>
+                    <a href="#">FAQ</a>
+                    <a href="#">Privacy Policy</a>
+                </div>
+                <div class="footer-section">
+                    <h4>Contact Us</h4>
+                    <p><i class="fas fa-map-marker-alt"></i> Department of Higher Education, Jharkhand</p>
+                    <p><i class="fas fa-phone"></i> 0651-XXXX-XXX</p>
+                    <p><i class="fas fa-envelope"></i> verification@jharkhand.gov.in</p>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2023 Jharkhand Department of Higher and Technical Education. All rights reserved.</p>
+                <p>Team Yatharth</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const uploadBtn = document.getElementById('uploadBtn');
+            const fileInput = document.getElementById('fileInput');
+            const dropZone = document.getElementById('dropZone');
+            const fileInfo = document.getElementById('fileInfo');
+            const fileName = document.getElementById('fileName');
+            const fileType = document.getElementById('fileType');
+            const fileSize = document.getElementById('fileSize');
+            const verificationStatus = document.getElementById('verificationStatus');
+            const statusTitle = document.getElementById('statusTitle');
+            const statusMessage = document.getElementById('statusMessage');
+            
+            // Criteria items
+            const criteria1 = document.getElementById('criteria1');
+            const criteria2 = document.getElementById('criteria2');
+            const criteria3 = document.getElementById('criteria3');
+            const criteria4 = document.getElementById('criteria4');
+            const criteria5 = document.getElementById('criteria5');
+            
+            // Upload button click event
+            uploadBtn.addEventListener('click', function() {
+                fileInput.click();
+            });
+            
+            // File input change event
+            fileInput.addEventListener('change', function(e) {
+                if (e.target.files.length > 0) {
+                    handleFile(e.target.files[0]);
+                }
+            });
+            
+            // Drag and drop functionality - FIXED
+            dropZone.addEventListener('dragover', function(e) {
+                e.preventDefault();
+                dropZone.style.borderColor = '#f39c12'; // Using actual color value instead of var()
+                dropZone.style.backgroundColor = '#f0f8ff';
+            });
+            
+            dropZone.addEventListener('dragleave', function() {
+                dropZone.style.borderColor = '#2e86c1'; // Using actual color value instead of var()
+                dropZone.style.backgroundColor = 'transparent';
+            });
+            
+            dropZone.addEventListener('drop', function(e) {
+                e.preventDefault();
+                dropZone.style.borderColor = '#2e86c1'; // Using actual color value instead of var()
+                dropZone.style.backgroundColor = 'transparent';
+                
+                if (e.dataTransfer.files.length > 0) {
+                    handleFile(e.dataTransfer.files[0]);
+                }
+            });
+            
+            // Handle the selected file
+            function handleFile(file) {
+                // Check file type and size
+                const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'application/pdf'];
+                const maxSize = 10 * 1024 * 1024; // 10MB
+                
+                if (!validTypes.includes(file.type)) {
+                    alert('Please select a valid file type (JPEG, PNG, PDF).');
+                    return;
+                }
+                
+                if (file.size > maxSize) {
+                    alert('File size exceeds the maximum limit of 10MB.');
+                    return;
+                }
+                
+                // Display file information
+                fileName.textContent = file.name;
+                fileType.textContent = file.type;
+                fileSize.textContent = formatFileSize(file.size);
+                fileInfo.style.display = 'block';
+                
+                // Disable upload button
+                uploadBtn.disabled = true;
+                uploadBtn.innerHTML = '<i class="fas fa-spinner spinner"></i> Verifying...';
+                document.querySelector('.spinner').style.display = 'inline-block';
+                
+                // Simulate verification process
+                simulateVerification();
+            }
+            
+            // Format file size
+            function formatFileSize(bytes) {
+                if (bytes === 0) return '0 Bytes';
+                const k = 1024;
+                const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+                const i = Math.floor(Math.log(bytes) / Math.log(k));
+                return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+            }
+            
+            // Simulate the verification process
+            function simulateVerification() {
+                // Reset all criteria
+                [criteria1, criteria2, criteria3, criteria4, criteria5].forEach(item => {
+                    item.classList.remove('checked');
+                });
+                
+                // Hide verification status
+                verificationStatus.style.display = 'none';
+                
+                // Simulate processing with delays
+                setTimeout(() => {
+                    criteria1.classList.add('checked');
+                }, 1000);
+                
+                setTimeout(() => {
+                    criteria2.classList.add('checked');
+                }, 2000);
+                
+                setTimeout(() => {
+                    criteria3.classList.add('checked');
+                }, 3000);
+                
+                setTimeout(() => {
+                    criteria4.classList.add('checked');
+                }, 4000);
+                
+                setTimeout(() => {
+                    criteria5.classList.add('checked');
+                    
+                    // Show verification status (85% chance of valid, 15% chance of invalid)
+                    const isValid = Math.random() > 0.15;
+                    
+                    if (isValid) {
+                        verificationStatus.className = 'verification-status status-valid';
+                        statusTitle.innerHTML = '<i class="fas fa-check-circle"></i> Certificate Valid';
+                        statusMessage.textContent = 'This certificate has been verified as authentic. All security features match our records.';
+                    } else {
+                        verificationStatus.className = 'verification-status status-invalid';
+                        statusTitle.innerHTML = '<i class="fas fa-times-circle"></i> Certificate Invalid';
+                        statusMessage.textContent = 'This certificate could not be verified. It may be forged or tampered with.';
+                    }
+                    
+                    verificationStatus.style.display = 'block';
+                    verificationStatus.classList.add('fade-in');
+                    
+                    // Re-enable upload button
+                    setTimeout(() => {
+                        uploadBtn.disabled = false;
+                        uploadBtn.innerHTML = '<i class="fas fa-upload"></i> Upload Another Certificate';
+                        document.querySelector('.spinner').style.display = 'none';
+                    }, 1000);
+                }, 5000);
+            }
+        });
+    </script>
+</body>
+</html>

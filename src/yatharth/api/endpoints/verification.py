@@ -84,7 +84,14 @@ def check_with_db(fields):
         mismatches.append("Percentage mismatch")
 
     if mismatches:
-        return {"status": "Suspicious", "message": f"Suspicious ⚠️ → {', '.join(mismatches)}"}
+        return {
+            "status": "Suspicious",
+            "message": f"Suspicious ⚠️ → {', '.join(mismatches)}",
+            "name": db_name,
+            "enrollment_no": enrollment,
+            "credits": db_credits,
+            "percentage": db_percentage
+        }
 
     return {
         "status": "Verified",
@@ -119,6 +126,10 @@ class DocumentVerification(Resource):
             # Clean up the temporary file
             os.remove(filepath)
 
-            return jsonify(verification_result)
+            # Return both OCR fields and verification result for frontend
+            return jsonify({
+                "fields": extracted_fields,
+                "verification": verification_result
+            })
 
         return jsonify({'error': 'File not processed'}), 500

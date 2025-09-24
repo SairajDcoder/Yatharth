@@ -829,7 +829,7 @@
             </div>
         </div>
 
-        <h3 class="text-center mb-4">Why Use Our Verification System?</h3>
+        <h3 class="text-center mb-4" style="color: #000;">Why Use Our Verification System?</h3>
         <div class="row mb-5">
             <div class="col-md-4">
                 <div class="card h-100">
@@ -1239,53 +1239,74 @@
             const dragDropIcons = uploadArea.querySelector('i');
             const browseBtn = uploadArea.querySelector('.btn');
 
-            // Function to start the simulated verification process
+
+            // Function to start the real verification process
             function startVerification(file) {
-                // Reset UI
                 progressBar.style.width = '0%';
                 progressText.textContent = `Uploading document: ${file.name}...`;
 
-                // Simulate progress
-                let progress = 0;
-                const interval = setInterval(() => {
-                    progress += 5;
-                    progressBar.style.width = `${progress}%`;
+                // Prepare form data
+                const formData = new FormData();
+                formData.append('file', file);
 
-                    if (progress === 20) {
-                        progressText.textContent = 'Extracting text with OCR...';
-                    } else if (progress === 40) {
-                        progressText.textContent = 'Checking security features...';
-                    } else if (progress === 60) {
-                        progressText.textContent = 'Verifying against database...';
-                    } else if (progress === 80) {
-                        progressText.textContent = 'Running AI validation...';
-                    } else if (progress === 100) {
-                        clearInterval(interval);
+                // Send file to backend
+                fetch('http://localhost:5000/verify', {
+                    method: 'POST',
+                    body: formData
+                })
+                    .then(res => res.json())
+                    .then(data => {
+                        progressBar.style.width = '100%';
                         progressText.textContent = 'Verification complete!';
-
-                        // Show result - randomly select between verified and fraud for demo
-                        const isVerified = Math.random() > 0.3;
-                        showResult(isVerified);
-                    }
-                }, 200);
+                        showResult(data);
+                    })
+                    .catch(err => {
+                        progressText.textContent = 'Error verifying document.';
+                    });
             }
 
-            // Show verification result
-            function showResult(isVerified) {
-                if (isVerified) {
+            // Show verification result from backend
+            function showResult(data) {
+                if (!data || !data.verification) {
+                    resultTitle.textContent = 'Error';
+                    resultDescription.textContent = 'Could not verify document.';
+                    detailStatus.className = 'badge bg-danger';
+                    detailStatus.textContent = 'Error';
+                    resultCard.style.display = 'block';
+                    return;
+                }
+
+                const status = data.verification.status;
+                if (status === 'Verified') {
                     resultIcon.className = 'fas fa-check-circle display-1 text-success';
                     resultTitle.textContent = 'Verification Successful';
-                    resultDescription.textContent = 'This document has been verified as authentic.';
+                    resultDescription.textContent = data.verification.message;
                     detailStatus.className = 'badge bg-success';
                     detailStatus.textContent = 'Verified';
+                } else if (status === 'Suspicious') {
+                    resultIcon.className = 'fas fa-exclamation-triangle display-1 text-warning';
+                    resultTitle.textContent = 'Suspicious Document';
+                    resultDescription.textContent = data.verification.message;
+                    detailStatus.className = 'badge bg-warning';
+                    detailStatus.textContent = 'Suspicious';
                 } else {
                     resultIcon.className = 'fas fa-times-circle display-1 text-danger';
                     resultTitle.textContent = 'Potential Fraud Detected';
-                    resultDescription.textContent = 'This document shows signs of tampering or does not match official records.';
+                    resultDescription.textContent = data.verification.message;
                     detailStatus.className = 'badge bg-danger';
                     detailStatus.textContent = 'Fraud Detected';
                 }
 
+                // Show OCR fields
+                let fieldsHtml = '';
+                if (data.fields) {
+                    fieldsHtml = '<h5>Extracted Fields:</h5><ul>';
+                    for (const [key, value] of Object.entries(data.fields)) {
+                        fieldsHtml += `<li><strong>${key}:</strong> ${value}</li>`;
+                    }
+                    fieldsHtml += '</ul>';
+                }
+                resultDescription.innerHTML += fieldsHtml;
                 resultCard.style.display = 'block';
             }
 
