@@ -1,13 +1,13 @@
 from flask_wtf import FlaskForm
 from wtforms import StringField, TextAreaField, SubmitField
 from wtforms.validators import DataRequired, Email
-
 import smtplib
 import ssl
 from flask_restx import Resource, Namespace
 from flask import request, render_template, make_response, flash, redirect, url_for, session
-from src.yatharth.api.endpoints.login import MyForm
 
+# MODIFIED: Import the new, specific form classes instead of the old MyForm
+from src.yatharth.api.endpoints.login import LoginForm, SignUpForm, ForgotPasswordForm
 
 CONTACT_API = Namespace(
     'communication', description='for communication purpose')
@@ -34,26 +34,37 @@ class ContactForm(FlaskForm):
 @CONTACT_API.route('/main', methods=['GET', 'POST'])
 class Main(Resource):
     def get(self):
-        contact_form = ContactForm()
-        form = MyForm()
-        username = session.get('username')
-        return make_response(render_template('index.html', contact_form=contact_form, form=form, flag="True", username=username))
+        # MODIFIED: This route now correctly initializes all the forms that index.html needs
+        # This makes it consistent with the main '/' route in __init__.py
+        login_form = LoginForm()
+        signup_form = SignUpForm()
+        forgot_password_form = ForgotPasswordForm()
+
+        is_authenticated = 'username' in session
+        username = session.get('username', 'Login')
+
+        return make_response(render_template(
+            'index.html',
+            login_form=login_form,
+            signup_form=signup_form,
+            forgot_password_form=forgot_password_form,
+            is_authenticated=is_authenticated,
+            username=username
+        ))
 
     def post(self):
+        # This POST logic for handling the contact form submission is fine
         contact_form = ContactForm()
-        form = MyForm()
         if contact_form.validate_on_submit():
             recipient_email = "transrectsalesandservices@gmail.com"
             subject = contact_form.subject.data
             message = f"Name: {contact_form.name.data}\nEmail: {contact_form.email.data}\n\n{contact_form.message.data}"
-
             send_email(recipient_email, subject, message)
             flash("Your message has been sent successfully!", "success")
-            # Redirect to the contact page
-            return make_response(render_template('index.html', contact_form=contact_form, form=form))
+            return redirect(url_for('communication.main'))
 
         flash("Your message could not be sent. Please try again.", "error")
-        return make_response(render_template('index.html', contact_form=contact_form, form=form))
+        return redirect(url_for('communication.main'))
 
 
 def send_email(recipient_email, subject, message):

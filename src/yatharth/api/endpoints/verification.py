@@ -6,6 +6,10 @@ from PIL import Image
 from surya.foundation import FoundationPredictor
 from surya.recognition import RecognitionPredictor
 from surya.detection import DetectionPredictor
+from flask import session  # To check if a user is logged in
+from src.yatharth.database import db  # Your main SQLAlchemy database instance
+# The history table model
+from src.yatharth.database.verifyHistory_model import VerificationHistory
 
 VERIFICATION_API = Namespace(
     'verify', description='Credential verification operations')
@@ -22,7 +26,7 @@ detection_predictor = DetectionPredictor()
 def get_db_cursor():
     conn = psycopg2.connect(
         host="localhost",
-        database="certdb",
+        database="YatharthDB",
         user="postgres",
         password="sai3606"
     )
@@ -39,16 +43,21 @@ def extract_fields(image_path):
     fields = {}
     for page in predictions:
         for line in page.text_lines:
-            text = line.text
-            if "Name" in text:
-                fields["name"] = text.split(":")[-1].strip()
-            if "Enrollment" in text:
+            text_content = line.text
+            # Convert to lowercase for case-insensitive matching
+            text_lower = text_content.lower()
+
+            # Use .split(':', 1) to only split on the first colon, in case the value has a colon
+            if "name" in text_lower:
+                fields["student_name"] = text_content.split(':', 1)[-1].strip()
+            if "enrollment" in text_lower:
                 fields["enrollment_no"] = "".join(
-                    [c for c in text if c.isdigit()])
-            if "Credits" in text:
-                fields["credits"] = "".join([c for c in text if c.isdigit()])
-            if "Percentage" in text:
-                fields["percentage"] = text.split()[-1].replace("%", "")
+                    [c for c in text_content if c.isdigit()])
+            # Add keys for the history table
+            if "degree" in text_lower or "bachelor" in text_lower or "master" in text_lower:
+                fields["degree"] = text_content.split(':', 1)[-1].strip()
+            if "university" in text_lower or "institute" in text_lower:
+                fields["institution"] = text_content.split(':', 1)[-1].strip()
 
     return fields
 
@@ -63,7 +72,7 @@ def check_with_db(fields):
 
     enrollment = fields["enrollment_no"]
     cursor.execute(
-        "SELECT name, credits, percentage FROM students WHERE enrollment_no = %s", (
+        "SELECT student_name, credits, percentage, degree FROM students WHERE enrollment_no = %s", (
             enrollment,)
     )
     record = cursor.fetchone()
@@ -72,7 +81,7 @@ def check_with_db(fields):
     if not record:
         return {"status": "Fraud Detected", "message": f"No record found for enrollment {enrollment}"}
 
-    db_name, db_credits, db_percentage = record
+    db_name, db_credits, db_percentage, db_degree = record
     mismatches = []
 
     # Compare OCR fields with database records
@@ -88,37 +97,48 @@ def check_with_db(fields):
 
     return {
         "status": "Verified",
-        "message": "Authentic ✅",
-        "name": db_name,
+        "message": "Document appears to be authentic.",
+        "student_name": db_name,
+        "degree": db_degree,
         "enrollment_no": enrollment,
-        "credits": db_credits,
-        "percentage": db_percentage
+        # Pass through the institution name extracted by the OCR
+        "institution": fields.get("institution", "Not Found")
     }
 
 
-@VERIFICATION_API.route('/', methods=['POST'])
+# Changed route for clarity
+@VERIFICATION_API.route('/process', methods=['POST'])
 class DocumentVerification(Resource):
     def post(self):
         if 'file' not in request.files:
-            return jsonify({'error': 'No file part in the request'}), 400
+            return jsonify({'success': False, 'message': 'No file part in the request'}), 400
 
         file = request.files['file']
-
         if file.filename == '':
-            return jsonify({'error': 'No selected file'}), 400
+            return jsonify({'success': False, 'message': 'No selected file'}), 400
 
         if file:
             filepath = os.path.join(
                 current_app.config["UPLOAD_FOLDER"], file.filename)
             file.save(filepath)
 
-            # Perform OCR and DB check
-            extracted_fields = extract_fields(filepath)
-            verification_result = check_with_db(extracted_fields)
+            try:
+                # The script will still perform the OCR and DB check as before
+                extracted_fields = extract_fields(filepath)
+                verification_result = check_with_db(extracted_fields)
 
-            # Clean up the temporary file
-            os.remove(filepath)
+                # MODIFICATION: We are REMOVING the history saving logic from this file.
+                # The frontend will now be responsible for calling the /history/save endpoint.
+
+            except Exception as e:
+                print(f"VERIFICATION PROCESSING ERROR: {e}")
+                verification_result = {"success": False, "status": "Error",
+                                       "message": "A server error occurred during processing."}
+            finally:
+                # The temporary file will always be deleted
+                if os.path.exists(filepath):
+                    os.remove(filepath)
 
             return jsonify(verification_result)
 
-        return jsonify({'error': 'File not processed'}), 500
+        return jsonify({'success': False, 'message': 'File could not be processed'}), 500

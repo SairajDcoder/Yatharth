@@ -6,7 +6,7 @@ class Login(db.Model):
 
     email = db.Column(db.String(100), primary_key=True)
     username = db.Column(db.String(100), nullable=False, unique=True)
-    password = db.Column(db.String(100), nullable=False)
+    password = db.Column(db.String(300), nullable=False)
     phone_no = db.Column(db.String(20), nullable=False)
     created_at = db.Column(db.DateTime, server_default=db.func.now())
 

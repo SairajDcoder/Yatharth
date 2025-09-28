@@ -131,17 +131,12 @@
             background: linear-gradient(135deg, #005f73 0%, #004685 100%);
             border-radius: 6px 6px 0 0;
             box-shadow: 15px -15px 30px rgba(0, 0, 0, 0.32);
-            position: relative;
-            transform: perspective(5px) rotateX(0.93deg) translateZ(-1px);
-            transform-origin: 0 0;
         }
 
         .box-login-title {
             width: 35%;
             height: 40px;
             position: absolute;
-            float: left;
-            z-index: 2;
             background: linear-gradient(135deg, #005f73 0%, #004685 100%);
         }
 
@@ -152,7 +147,6 @@
             background: #fdfdfd;
             text-align: center;
             overflow: hidden;
-            z-index: 2;
             border-top-right-radius: 6px;
             border-bottom-left-radius: 6px;
             border-bottom-right-radius: 6px;
@@ -191,8 +185,6 @@
             line-height: 20px;
             color: #ffffff;
             text-align: center;
-            position: relative;
-            /* This is the only line you need to add */
         }
 
         h3 {
@@ -313,11 +305,6 @@
         .form-group {
             margin: 0;
             padding: 0;
-            margin-bottom: 0;
-        }
-
-        .form-group .submit-button {
-            margin-bottom: 0;
         }
 
         .submit-button {
@@ -486,12 +473,10 @@
                     </div>
                     <div class="card-body">
                         <div class="upload-area" id="uploadArea">
-                            <div class="upload-area-content">
-                                <i class="fas fa-cloud-upload-alt display-4 text-secondary mb-3"></i>
-                                <h5>Drag & Drop your document here</h5>
-                                <p class="text-muted">Supported formats: PDF, JPG, PNG</p>
-                                <button class="btn btn-primary mt-2">Browse Files</button>
-                            </div>
+                            <i class="fas fa-cloud-upload-alt display-4 text-secondary mb-3"></i>
+                            <h5>Drag & Drop your document here</h5>
+                            <p class="text-muted">Supported formats: PDF, JPG, PNG</p>
+                            <button class="btn btn-primary mt-2">Browse Files</button>
                             <div id="filePreview" style="display:none; text-align:center; padding:20px;">
                                 <i id="fileIcon" class="far fa-file-alt display-4 mb-2"></i>
                                 <p id="fileName" class="mb-0"></p>
@@ -519,15 +504,15 @@
                                         <ul class="list-group list-group-flush">
                                             <li class="list-group-item d-flex justify-content-between">
                                                 <span>Name:</span>
-                                                <span id="detailName"></span>
+                                                <span id="detailName">Rajesh Kumar</span>
                                             </li>
                                             <li class="list-group-item d-flex justify-content-between">
                                                 <span>Institution:</span>
-                                                <span id="detailInstitution"></span>
+                                                <span id="detailInstitution">Ranchi University</span>
                                             </li>
                                             <li class="list-group-item d-flex justify-content-between">
                                                 <span>Degree:</span>
-                                                <span id="detailDegree"></span>
+                                                <span id="detailDegree">Bachelor of Technology</span>
                                             </li>
                                         </ul>
                                     </div>
@@ -535,12 +520,16 @@
                                         <h6>Verification Details</h6>
                                         <ul class="list-group list-group-flush">
                                             <li class="list-group-item d-flex justify-content-between">
-                                                <span>Enrollment #:</span>
-                                                <span id="detailCertId"></span>
+                                                <span>Certificate ID:</span>
+                                                <span id="detailCertId">RU/BTECH/2021/08732</span>
+                                            </li>
+                                            <li class="list-group-item d-flex justify-content-between">
+                                                <span>Issue Date:</span>
+                                                <span id="detailDate">May 15, 2021</span>
                                             </li>
                                             <li class="list-group-item d-flex justify-content-between">
                                                 <span>Status:</span>
-                                                <span class="badge" id="detailStatus"></span>
+                                                <span class="badge bg-success" id="detailStatus">Verified</span>
                                             </li>
                                         </ul>
                                     </div>
@@ -562,7 +551,7 @@
                     <div class="card-header bg-white">
                         <h5 class="mb-0"><i class="fas fa-history me-2"></i> Recent Verifications</h5>
                     </div>
-                    <!-- <div class="card-body">
+                    <div class="card-body">
                         <div class="verification-history">
                             <div class="d-flex justify-content-between border-bottom pb-3 mb-3">
                                 <div>
@@ -614,11 +603,6 @@
                                     <div class="text-muted small">Apr 12, 2023</div>
                                 </div>
                             </div>
-                        </div>
-                    </div> -->
-                    <div class="card-body">
-                        <div class="verification-history" id="verificationHistoryContainer">
-                            <p class="text-muted">Loading history...</p>
                         </div>
                     </div>
                 </div>
@@ -938,44 +922,6 @@
         document.addEventListener('DOMContentLoaded', function () {
             const authModal = document.getElementById('authModal');
             const modalViews = document.querySelectorAll('.modal-view');
-            const verificationHistoryContainer = document.getElementById('verificationHistoryContainer');
-
-            // --- NEW FUNCTION: To fetch and display verification history ---
-            async function fetchVerificationHistory() {
-                try {
-                    const response = await fetch('/history/list'); // Calls your new GET endpoint
-                    const result = await response.json();
-
-                    if (result.success && result.history.length > 0) {
-                        verificationHistoryContainer.innerHTML = ''; // Clear the "Loading..." text
-                        result.history.forEach(item => {
-                            let badgeClass = 'bg-secondary';
-                            if (item.verification_status === 'Verified') badgeClass = 'bg-success';
-                            if (item.verification_status === 'Fraud Detected') badgeClass = 'bg-danger';
-                            if (item.verification_status === 'Needs Review') badgeClass = 'bg-warning text-dark';
-
-                            const historyItemHTML = `
-                                <div class="d-flex justify-content-between border-bottom pb-3 mb-3">
-                                    <div>
-                                        <div class="fw-bold">${item.student_name}</div>
-                                        <div class="text-muted small">${item.degree} - ${item.institution}</div>
-                                    </div>
-                                    <div class="text-end">
-                                        <div class="badge ${badgeClass}">${item.verification_status}</div>
-                                        <div class="text-muted small">${item.verified_at}</div>
-                                    </div>
-                                </div>
-                            `;
-                            verificationHistoryContainer.insertAdjacentHTML('beforeend', historyItemHTML);
-                        });
-                    } else {
-                        verificationHistoryContainer.innerHTML = '<p class="text-muted">No verification history found.</p>';
-                    }
-                } catch (error) {
-                    console.error("Failed to fetch verification history:", error);
-                    verificationHistoryContainer.innerHTML = '<p class="text-danger">Could not load history.</p>';
-                }
-            }
 
             function showPopup(message, type = 'success') {
                 const popup = document.getElementById('popup');
@@ -1015,20 +961,8 @@
                 submitButton.disabled = true;
                 submitButton.textContent = 'Processing...';
 
-                // This is the corrected data handling
-                const data = {};
-                formData.forEach((value, key) => {
-                    data[key] = value;
-                });
-
                 try {
-                    const response = await fetch(form.action, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/x-www-form-urlencoded',
-                        },
-                        body: new URLSearchParams(data)
-                    });
+                    const response = await fetch(form.action, { method: 'POST', body: new URLSearchParams(formData) });
                     return await response.json();
                 } catch (error) {
                     console.error('Form submission error:', error);
@@ -1111,140 +1045,34 @@
                 }
             });
 
-            // function startVerification(file) {
-            //     progressBar.style.width = '0%';
-            //     progressText.textContent = `Uploading document: ${file.name}...`;
-            //     let progress = 0;
-            //     const interval = setInterval(() => {
-            //         progress += 5;
-            //         progressBar.style.width = `${progress}%`;
-            //         if (progress === 20) progressText.textContent = 'Extracting text...';
-            //         else if (progress === 60) progressText.textContent = 'Verifying against database...';
-            //         else if (progress === 100) {
-            //             clearInterval(interval);
-            //             progressText.textContent = 'Verification complete!';
-            //             showResult(Math.random() > 0.3);
-            //         }
-            //     }, 200);
-            // }
-            async function startVerification(file) {
-                // Prepare the file for sending
-                const formData = new FormData();
-                formData.append('file', file);
-
-                // Update the UI to show that processing has started
+            function startVerification(file) {
                 progressBar.style.width = '0%';
-                progressBar.classList.remove('bg-success', 'bg-danger');
                 progressText.textContent = `Uploading document: ${file.name}...`;
-
-                try {
-                    // Animate the progress bar to show activity
-                    progressBar.style.width = '50%';
-                    progressText.textContent = 'Processing document with OCR... This may take a moment.';
-
-                    // Send the file to the backend API endpoint
-                    const response = await fetch('/verify/process', {
-                        method: 'POST',
-                        body: formData
-                    });
-
-                    // Update UI upon completion
-                    progressBar.style.width = '100%';
-                    progressText.textContent = 'Verification complete!';
-
-                    if (!response.ok) {
-                        throw new Error(`Server returned an error: ${response.statusText}`);
+                let progress = 0;
+                const interval = setInterval(() => {
+                    progress += 5;
+                    progressBar.style.width = `${progress}%`;
+                    if (progress === 20) progressText.textContent = 'Extracting text...';
+                    else if (progress === 60) progressText.textContent = 'Verifying against database...';
+                    else if (progress === 100) {
+                        clearInterval(interval);
+                        progressText.textContent = 'Verification complete!';
+                        showResult(Math.random() > 0.3);
                     }
-
-                    const result = await response.json();
-
-                    // Pass the detailed result from the backend to the showResult function
-                    showResult(result);
-
-                } catch (error) {
-                    console.error('Verification failed:', error);
-                    progressText.textContent = 'Verification failed. Please check the console and try again.';
-                    progressBar.style.width = '100%';
-                    progressBar.classList.add('bg-danger');
-                }
+                }, 200);
             }
 
-            // function showResult(isVerified) {
-            //     if (isVerified) {
-            //         resultIcon.className = 'fas fa-check-circle display-1 text-success';
-            //         resultTitle.textContent = 'Verification Successful';
-            //         resultDescription.textContent = 'This document has been verified as authentic.';
-            //     } else {
-            //         resultIcon.className = 'fas fa-times-circle display-1 text-danger';
-            //         resultTitle.textContent = 'Potential Fraud Detected';
-            //         resultDescription.textContent = 'This document shows signs of tampering.';
-            //     }
-            //     resultCard.style.display = 'block';
-            // }
-            function showResult(result) {
-                const status = result.status || "Error";
-                const message = result.message || "An unknown error occurred.";
-
-                // Update the main result text and icon
-                resultTitle.textContent = status;
-                resultDescription.textContent = message;
-
-                let badgeClass = 'bg-secondary';
-                let iconClass = 'fas fa-question-circle display-1 text-secondary';
-
-                if (status === 'Verified') {
-                    badgeClass = 'bg-success';
-                    iconClass = 'fas fa-check-circle display-1 text-success';
-                } else if (status === 'Fraud Detected' || status === 'Suspicious') {
-                    badgeClass = 'bg-danger';
-                    iconClass = 'fas fa-times-circle display-1 text-danger';
-                } else if (status === 'Error') {
-                    badgeClass = 'bg-warning text-dark';
-                    iconClass = 'fas fa-exclamation-triangle display-1 text-warning';
+            function showResult(isVerified) {
+                if (isVerified) {
+                    resultIcon.className = 'fas fa-check-circle display-1 text-success';
+                    resultTitle.textContent = 'Verification Successful';
+                    resultDescription.textContent = 'This document has been verified as authentic.';
+                } else {
+                    resultIcon.className = 'fas fa-times-circle display-1 text-danger';
+                    resultTitle.textContent = 'Potential Fraud Detected';
+                    resultDescription.textContent = 'This document shows signs of tampering.';
                 }
-
-                resultIcon.className = iconClass;
-
-                // Populate the details table with the real data from the OCR process
-                document.getElementById('detailName').textContent = result.student_name || 'N/A';
-                document.getElementById('detailInstitution').textContent = result.institution || 'Not Found';
-                document.getElementById('detailDegree').textContent = result.degree || 'N/A';
-                document.getElementById('detailCertId').textContent = result.enrollment_no || 'N/A';
-
-                const detailStatus = document.getElementById('detailStatus');
-                detailStatus.className = `badge ${badgeClass}`;
-                detailStatus.textContent = status;
-
-                // Show the result card and refresh the history list automatically
                 resultCard.style.display = 'block';
-
-                // This is the new part that will call your separate history API.
-                // It ensures that even if the save fails, the user still sees their result.
-                if (document.body.dataset.isAuthenticated === 'true' && status !== 'Error') {
-                    const historyData = {
-                        student_name: result.student_name || 'N/A',
-                        institution: result.institution || 'N/A',
-                        degree: result.degree || 'N/A',
-                        status: status,
-                        certificate_id: result.enrollment_no || 'N/A',
-                        issue_date: 'N/A' // Your OCR doesn't extract this yet
-                    };
-
-                    fetch('/history/save', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(historyData)
-                    })
-                        .then(res => res.json())
-                        .then(data => {
-                            if (data.success) {
-                                console.log("History saved!");
-                                fetchVerificationHistory(); // Refresh the list
-                            } else {
-                                console.error("Failed to save history:", data.message);
-                            }
-                        });
-                }
             }
 
             function resetUploadUI() {
@@ -1300,9 +1128,6 @@
                 };
                 fileInput.click();
             });
-            // --- INITIAL CALL ---
-            // Fetch the history as soon as the page loads
-            fetchVerificationHistory();
         });
     </script>
 </body>

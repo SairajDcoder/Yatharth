@@ -4,10 +4,12 @@ import ssl
 from flask_restx import Resource, Namespace
 from flask import request, render_template, make_response, flash, redirect, url_for, session, jsonify
 from flask_wtf import FlaskForm
-from wtforms import TelField, StringField, PasswordField, SubmitField, EmailField, BooleanField, TextAreaField
-from wtforms.validators import Length, Email, EqualTo, DataRequired, Optional
+from wtforms import TelField, StringField, PasswordField, SubmitField, EmailField, BooleanField
+from wtforms.validators import Length, Email, EqualTo, DataRequired
 from src.yatharth.database.login_model import Login as LoginModel
+from src.yatharth.database.admin import AdminLogin
 from src.yatharth.database import db
+from werkzeug.security import generate_password_hash, check_password_hash
 
 LOGIN_API = Namespace('account', description='login related operations')
 
@@ -16,78 +18,45 @@ smtp_server = "smtp.gmail.com"
 email_from = "transrectsalesandservices@gmail.com"
 pswd = "fdzt ykhf ysfc xavb"
 
+# --- Form Definitions ---
 
-class MyForm(FlaskForm):
-    username = StringField('Username', validators=[
-        DataRequired(message="Username is required"),
-        Length(min=5, max=20, message="Username must be between 5 and 20 characters")
-    ])
 
-    email = EmailField('Email address', validators=[
-        DataRequired(message="Email is required"),
-        Email(message="Enter a valid email address")
-    ])
-
-    phone_number = TelField('Phone Number', validators=[
-        DataRequired(message="Phone Number is required"),
-        Length(min=10, max=10, message="Phone Number must be 10 digits")
-    ])
-
-    password = PasswordField('Password', validators=[
-        DataRequired(message="Password is required"),
-        Length(min=8, max=8, message="Password must be 8 characters")
-    ])
-
-    confirm_password = PasswordField('Confirm Password', validators=[
-        DataRequired(message="Confirm Password is required"),
-        EqualTo('password', message="Passwords must match"),
-        Length(min=8, max=8, message="Confirm Password must be 8 characters")
-    ])
-
+class LoginForm(FlaskForm):
+    email = EmailField('Email address', validators=[DataRequired(), Email()])
+    password = PasswordField('Password', validators=[DataRequired()])
     remember_me = BooleanField('Keep me Signed In')
 
-    submit = SubmitField('Submit', render_kw={'class': 'submit-button'})
 
-    def adjust_for_login(self):
-        self.username.validators[:] = [Optional()]
-        self.phone_number.validators[:] = [Optional()]
-        self.confirm_password.validators[:] = [Optional()]
-
-    def make_required(self):
-        self.username.validators[:] = [
-            DataRequired(message="Username is required"),
-            Length(min=5, max=20,
-                   message="Username must be between 5 and 20 characters")
-        ]
-        self.phone_number.validators[:] = [
-            DataRequired(message="Phone Number is required"),
-            Length(min=10, max=10, message="Phone Number must be 10 digits")
-        ]
-        self.confirm_password.validators[:] = [
-            DataRequired(message="Confirm Password is required"),
-            EqualTo('password', message="Passwords must match"),
-            Length(min=8, max=8, message="Confirm Password must be 8 characters")
-        ]
+class SignUpForm(FlaskForm):
+    username = StringField('Username', validators=[
+                           DataRequired(), Length(min=4, max=25)])
+    email = EmailField('Email address', validators=[DataRequired(), Email()])
+    phone_number = TelField('Phone Number', validators=[
+                            DataRequired(), Length(min=10, max=10)])
+    password = PasswordField('Password', validators=[
+                             DataRequired(), Length(min=8)])
+    confirm_password = PasswordField('Confirm Password', validators=[
+                                     DataRequired(), EqualTo('password')])
 
 
-class VerificationForm(FlaskForm):
-    email = EmailField('Email address', validators=[
-        DataRequired(message="Email is required"),
-        Email(message="Enter a valid email address")
-    ])
-    verification_code_0 = StringField('Code', [Optional(), Length(max=1)])
-    verification_code_1 = StringField('Code', [Optional(), Length(max=1)])
-    verification_code_2 = StringField('Code', [Optional(), Length(max=1)])
-    verification_code_3 = StringField('Code', [Optional(), Length(max=1)])
-    verification_code_4 = StringField('Code', [Optional(), Length(max=1)])
-    verification_code_5 = StringField('Code', [Optional(), Length(max=1)])
+class ForgotPasswordForm(FlaskForm):
+    email = EmailField('Email address', validators=[DataRequired(), Email()])
+
+# MODIFIED: Added form for OTP verification
+
+
+class VerifyCodeForm(FlaskForm):
+    verification_code = StringField('Verification Code', validators=[
+                                    DataRequired(), Length(min=6, max=6)])
+
+# MODIFIED: Added form for the final password reset
 
 
 class ResetPasswordForm(FlaskForm):
-    new_password = PasswordField(
-        'New Password', [DataRequired(), Length(min=8, max=8, message="Password must be 8 characters")])
-    confirm_password = PasswordField(
-        'Confirm Password', [EqualTo('new_password', message='Passwords must match'), Length(min=8, max=8, message="Password must be 8 characters")])
+    new_password = PasswordField('New Password', validators=[
+                                 DataRequired(), Length(min=8)])
+    confirm_password = PasswordField('Confirm Password', validators=[
+                                     DataRequired(), EqualTo('new_password')])
 
 
 def send_email(recipient_email, subject, message):
@@ -98,181 +67,163 @@ def send_email(recipient_email, subject, message):
             server.login(email_from, pswd)
             email_message = f"Subject: {subject}\n\n{message}"
             server.sendmail(email_from, recipient_email, email_message)
-            print(f"Email successfully sent to - {recipient_email}")
     except Exception as e:
-        print(f"Error: {e}")
+        print(f"Error sending email: {e}")
 
 
 def generate_verification_code():
     return ''.join(random.choices('0123456789', k=6))
 
+# --- API Endpoints ---
 
-@LOGIN_API.route('/login', methods=['GET', 'POST'])
+
+@LOGIN_API.route('/login', methods=['POST'])
 class Login(Resource):
-    def get(self):
-        return jsonify({"message": "This endpoint is for login POST requests."})
-
     def post(self):
-        form = MyForm()
-        form.adjust_for_login()
-        form.email.data = request.form.get('email')
-        form.password.data = request.form.get('password')
-        form.remember_me.data = 'remember_me' in request.form
-
+        form = LoginForm()
         if form.validate_on_submit():
-            user = LoginModel.query.filter_by(email=form.email.data).first()
-            if user and user.password == form.password.data:
-                session['email'] = user.email
-                session['username'] = user.username
-                session['keep_signed_in'] = form.remember_me.data
-                session['last_email'] = user.email
+            email = form.email.data
+            password = form.password.data
 
-                # Check for admin
-                if user.email == "transrectsalesandservices@gmail.com":
-                    flash('admin login successful', 'success')
-                    return jsonify({"success": True, "redirect_url": url_for('log.admin')})
-                flash('Successfully Logged In', 'success')
-                session['username'] = user.username
-                return jsonify({"success": True, "redirect_url": url_for('log.communication_main'),
-                                "username": user.username})
-            else:
-                flash('Incorrect email or password. Please try again.', 'error')
-                return jsonify({"success": False, "message": "Incorrect email or password. Please try again."})
+            admin_user = AdminLogin.query.filter_by(email=email).first()
 
-        errors = {field: [error for error in form.errors[field]]
-                  for field in form.errors}
-        flash('Form validation failed.', 'error')
-        return jsonify({"success": False, "errors": errors, "message": "Form validation failed."})
+            if admin_user and check_password_hash(admin_user.password, password):
+                session['email'] = admin_user.email
+                session['is_admin'] = True
+                session.permanent = form.remember_me.data
+
+                return jsonify({
+                    "success": True,
+                    "message": "Admin login successful!",
+                    "redirect_url": url_for('admin')
+                })
+
+            regular_user = LoginModel.query.filter_by(email=email).first()
+
+            if regular_user and check_password_hash(regular_user.password, password):
+                session['email'] = regular_user.email
+                session['username'] = regular_user.username
+                session['is_admin'] = False
+                session.permanent = form.remember_me.data
+
+                return jsonify({
+                    "success": True,
+                    "message": "Login successful!",
+                    "redirect_url": url_for('index'),
+                    "username": regular_user.username
+                })
+
+            return jsonify({"success": False, "message": "Incorrect email or password."})
+
+        return jsonify({"success": False, "message": "Invalid form submission.", "errors": form.errors})
+
+
+@LOGIN_API.route('/signup', methods=['POST'])
+class SignUp(Resource):
+    def post(self):
+        form = SignUpForm()
+        if form.validate_on_submit():
+            if LoginModel.query.filter_by(email=form.email.data).first():
+                return jsonify({"success": False, "message": "An account with this email already exists."})
+            if LoginModel.query.filter_by(username=form.username.data).first():
+                return jsonify({"success": False, "message": "This username is already taken."})
+            if LoginModel.query.filter_by(phone_no=form.phone_number.data).first():
+                return jsonify({"success": False, "message": "This phone number is already registered."})
+
+            try:
+                hashed_password = generate_password_hash(
+                    form.password.data, method='pbkdf2:sha256')
+                print(form.username.data + form.email.data +
+                      form.phone_number.data + hashed_password)
+                new_user = LoginModel(username=form.username.data, email=form.email.data,
+                                      phone_no=form.phone_number.data, password=hashed_password)
+                print("hello")
+
+                db.session.add(new_user)
+                db.session.commit()
+
+                session['email'] = new_user.email
+                session['username'] = new_user.username
+                return jsonify({"success": True, "message": "Account created successfully!", "redirect_url": url_for('index')})
+            except Exception as e:
+                db.session.rollback()
+                print(f"DATABASE SIGNUP ERROR: {e}")
+                return jsonify({"success": False, "message": "A database error occurred. Please try again later."})
+
+        return jsonify({"success": False, "message": "Please correct the form errors.", "errors": form.errors})
 
 
 @LOGIN_API.route('/logout')
 class Logout(Resource):
     def get(self):
-        session.pop('email', None)
-        session.pop('keep_signed_in', None)
-        session.pop('last_email', None)
-        session.pop('username', None)
-        flash('You have been logged out successfully.', 'success')
-        return redirect(url_for('log.account_login'))
+        session.clear()
+        return redirect(url_for('index'))
 
 
-@LOGIN_API.route('/home')
-class Home(Resource):
-    def get(self):
-        return redirect(url_for('log.communication_main'))
-
-
-@LOGIN_API.route('/signup', methods=['GET', 'POST'])
-class SignUp(Resource):
-    def get(self):
-        form = MyForm()
-        form.make_required()
-        return make_response(render_template('./signup.html', form=form))
-
-    def post(self):
-        from src.yatharth.database import db
-        form = MyForm()
-        form.make_required()
-        if form.validate_on_submit():
-            username = form.username.data
-            email = form.email.data
-            phone_no = int(form.phone_number.data)
-            password = form.password.data
-            login = LoginModel(username=username, email=email,
-                               phone_no=phone_no, password=password)
-            db.session.add(login)
-            db.session.commit()
-            flash('Account created successfully. Please login.', 'success')
-            return make_response(render_template('./loginhtml.html', form=form))
-        for field, errors in form.errors.items():
-            for error in errors:
-                flash(f"{field.capitalize()}: {error}", "error")
-        return make_response(render_template('./signup.html', form=form))
-
-
-@LOGIN_API.route('/forgot_password', methods=['GET', 'POST'])
+@LOGIN_API.route('/forgot_password', methods=['POST'])
 class ForgotPassword(Resource):
-    def get(self):
-        form = VerificationForm()
-        return make_response(render_template('forgot_password.html', form=form))
-
     def post(self):
-        form = VerificationForm()
-        action = request.form.get('action')
-        email = form.email.data
-        if action == 'send_email':
-            if form.validate_on_submit():
-                verification_code = generate_verification_code()
-                session['verification_code'] = verification_code
-                session['email'] = email
-                subject = "Your Verification Code"
-                message = f"Your verification code is: {verification_code}"
-                send_email(email, subject, message)
-                flash('Verification code sent to your email.', 'success')
-                return make_response(render_template('forgot_password.html', form=form))
-        elif action == 'verify_code':
-            verification_code = ''.join([
-                form.verification_code_0.data, form.verification_code_1.data,
-                form.verification_code_2.data, form.verification_code_3.data,
-                form.verification_code_4.data, form.verification_code_5.data
-            ])
-            if verification_code == session.get('verification_code'):
-                return redirect(url_for('log.account_reset_password'))
-            else:
-                flash('Invalid verification code. Please try again.', 'error')
-        return make_response(render_template('forgot_password.html', form=form))
+        form = ForgotPasswordForm()
+        if form.validate_on_submit():
+            email = form.email.data
+            user = LoginModel.query.filter_by(email=email).first()
+            if not user:
+                return jsonify({"success": False, "message": "No account found with that email address."})
+
+            verification_code = generate_verification_code()
+            session['verification_code'] = verification_code
+            session['reset_email'] = email
+
+            subject = "Your Password Reset Code"
+            message = f"Your verification code is: {verification_code}"
+            send_email(email, subject, message)
+
+            return jsonify({"success": True, "message": "A verification code has been sent to your email."})
+        return jsonify({"success": False, "message": "Please enter a valid email.", "errors": form.errors})
+
+# MODIFIED: New endpoint to verify the OTP code
 
 
 @LOGIN_API.route('/verify_code', methods=['POST'])
 class VerifyCode(Resource):
     def post(self):
-        verification_code = ''.join([
-            request.form.get('verification_code_0'), request.form.get(
-                'verification_code_1'),
-            request.form.get('verification_code_2'), request.form.get(
-                'verification_code_3'),
-            request.form.get('verification_code_4'), request.form.get(
-                'verification_code_5')
-        ])
-        if verification_code == session.get('verification_code'):
-            return redirect(url_for('log.account_reset_password'))
-        else:
-            flash('Invalid verification code. Please try again.', 'error')
-            return redirect(url_for('log.account_forgot_password'))
+        form = VerifyCodeForm()
+        if form.validate_on_submit():
+            user_code = form.verification_code.data
+            server_code = session.get('verification_code')
+
+            if user_code == server_code:
+                # Set a flag to allow password reset
+                session['code_verified'] = True
+                return jsonify({"success": True, "message": "Code verified successfully."})
+            else:
+                return jsonify({"success": False, "message": "Invalid verification code."})
+        return jsonify({"success": False, "message": "Invalid submission.", "errors": form.errors})
 
 
-@LOGIN_API.route('/resend_email')
-class ResendEmail(Resource):
-    def get(self):
-        email = session.get('email')
-        if email:
-            verification_code = generate_verification_code()
-            session['verification_code'] = verification_code
-            subject = "Your New Verification Code"
-            message = f"Your new verification code is: {verification_code}"
-            send_email(email, subject, message)
-            flash('New verification code sent to your email.', 'success')
-        return redirect(url_for('log.account_forgot_password'))
-
-
-@LOGIN_API.route('/reset_password', methods=['GET', 'POST'])
+# MODIFIED: New endpoint to handle the final password reset
+@LOGIN_API.route('/reset_password', methods=['POST'])
 class ResetPassword(Resource):
-    def get(self):
-        form = ResetPasswordForm()
-        return make_response(render_template('reset_password.html', form=form))
-
     def post(self):
+        if not session.get('code_verified'):
+            return jsonify({"success": False, "message": "Please verify your code first."})
+
         form = ResetPasswordForm()
         if form.validate_on_submit():
-            email = session.get('email')
-            new_password = form.new_password.data
+            email = session.get('reset_email')
             user = LoginModel.query.filter_by(email=email).first()
             if user:
-                user.password = new_password
+                hashed_password = generate_password_hash(
+                    form.new_password.data, method='pbkdf2:sha256')
+                user.password = hashed_password
                 db.session.commit()
-                flash(
-                    'Password reset successfully. Please login with your new password.', 'success')
+
+                # Clear session variables related to reset
+                session.pop('reset_email', None)
+                session.pop('verification_code', None)
+                session.pop('code_verified', None)
+
+                return jsonify({"success": True, "message": "Password has been reset successfully. Please log in."})
             else:
-                flash('User not found. Please try again.', 'error')
-            return redirect(url_for('log.account_login'))
-        return make_response(render_template('reset_password.html', form=form))
+                return jsonify({"success": False, "message": "User not found."})
+        return jsonify({"success": False, "message": "Invalid submission.", "errors": form.errors})
