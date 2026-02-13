@@ -32,11 +32,14 @@ def get_db_cursor():
     )
     return conn, conn.cursor()
 
+
 # --- OCR FUNCTION ---
 
 
-def extract_fields(image_path):
-    img = Image.open(image_path)
+import io
+
+def extract_fields(img):
+    # img is now a PIL Image object
     predictions = recognition_predictor(
         [img], det_predictor=detection_predictor)
 
@@ -118,13 +121,14 @@ class DocumentVerification(Resource):
             return jsonify({'success': False, 'message': 'No selected file'}), 400
 
         if file:
-            filepath = os.path.join(
-                current_app.config["UPLOAD_FOLDER"], file.filename)
-            file.save(filepath)
-
             try:
-                # The script will still perform the OCR and DB check as before
-                extracted_fields = extract_fields(filepath)
+                # Read the file directly into memory as bytes
+                file_bytes = file.read()
+                # Create a PIL Image from the bytes
+                img = Image.open(io.BytesIO(file_bytes))
+
+                # Pass the PIL Image directly to the extractor
+                extracted_fields = extract_fields(img)
                 verification_result = check_with_db(extracted_fields)
 
                 # MODIFICATION: We are REMOVING the history saving logic from this file.
@@ -134,10 +138,8 @@ class DocumentVerification(Resource):
                 print(f"VERIFICATION PROCESSING ERROR: {e}")
                 verification_result = {"success": False, "status": "Error",
                                        "message": "A server error occurred during processing."}
-            finally:
-                # The temporary file will always be deleted
-                if os.path.exists(filepath):
-                    os.remove(filepath)
+            
+            # No need for finally block or file cleanup since we didn't save to disk
 
             return jsonify(verification_result)
 
